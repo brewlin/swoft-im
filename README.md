@@ -1,7 +1,7 @@
 基于Swoft-cloud微服务架构-Im通讯平台
 ==============
-1.概述
---------------
+概述
+=======
 + 对swoole-im进行服务拆分，进行微服务架构(https:://wwww.github.com/Lxido/swoole-im.git)
 + 基于Swoft-cloud 进行服务化治理服务治理、熔断器、服务降级、Rpc调用、服务网关、
 Cosul服务注册与发现、Mysql连接池、Redis连接池、异步任务、websocket推送
@@ -18,24 +18,42 @@ Cosul服务注册与发现、Mysql连接池、Redis连接池、异步任务、we
 
 
 
-2.架构图
---------------
-- 服务依赖
+架构图
+=========
+服务依赖
+-----
 ![](./resource/services.png)
-- 前端服务
+
+前端服务
+-----
 ![](./resource/api.png)
-- 服务处理
+
+服务处理
+------
 ![](./resource/swoole.png)
-3.后台开发
--------------
 
-    
-4.websocket服务器开发
+服务开发
 -----------
+Gateway-Api && Websocket 中心网关服务
+-------
+    接受web端webocket长连接通讯、api请求.
+    处理基础数据，对外中心api网关.
+    服务调用方,调用群组服务、用户基础服务等`
+- 依赖: user-service group-service services-components,redis-services
+- 配置: `worker`:2，`task_worke`r:2,`port`:8090`熔断器`，`服务降级`,Rpc`连接池`，`useProvider`:false,
+- 服务启动：
 
+    `./gateway-api` 
+    
+    `composer udpate`更新依赖
+    
+    `php bin/swoft ws:start` --d可选守护进程模式
+    
+Redis 中心网关服务
+-------
 
-5.开发进度 && 实现功能
-----------
+开发进度 && 实现功能
+==========
 > 好友单聊
 
 > 添加好友
@@ -65,18 +83,8 @@ Cosul服务注册与发现、Mysql连接池、Redis连接池、异步任务、we
     - 好友离线上线通知
     - 系统消息推送
     - 好友添加申请通知 以及交互操作
-
-
-6.开发模块
-----------
-> 带有完整的后台管理
->
-> 带有完整的中心服服务
->
-> 带有独立的api模块
-
 7.预览
-----------
+======
 - 消息处理中心，消息盒子
 ![](https://github.com/Lxido/swoole-im/blob/master/img/QQ%E6%88%AA%E5%9B%BE20190106210353.png?raw=true)
 - 发现中心，推荐好友群，搜索好友群，创建群
