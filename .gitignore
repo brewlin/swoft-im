@@ -1,0 +1,5 @@
+*vendor/
+*.lock
+*public/
+*resources/
+*dev.composer.json

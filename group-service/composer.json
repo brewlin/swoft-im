@@ -1,0 +1,25 @@
+{
+    "name": "lxido/group-service",
+    "description": "service components",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "xiaodo",
+            "email": "97404667@qq.com"
+        }
+    ],
+    "repositories": {
+      "0":{
+          "type":"path",
+          "url":"../service-components"
+      },
+        "packagist": {
+            "type": "composer",
+            "url": "https://packagist.laravel-china.org"
+        }
+    },
+    "require": {
+        "lxido/components": "@dev"
+    }
+}
