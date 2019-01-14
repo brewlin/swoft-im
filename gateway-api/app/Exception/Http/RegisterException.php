@@ -8,13 +8,15 @@
 
 namespace App\Exception\Http;
 
-use App\Enum\ExceptionEnum;
+use ServiceComponents\Enum\StatusEnum;
 class RegisterException extends HttpExceptionHandler
 {
-    public $code = ExceptionEnum::FailCode;
+    public $code = StatusEnum::Fail;
 
     public $msg = '注册失败';
 
     public $data = [];
+
+    public $statusCode = 2002;
 
 }

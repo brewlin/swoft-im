@@ -9,8 +9,8 @@
 namespace App\Services;
 
 
-use App\Models\Entity\User;
 use App\Models\Entity\UserGroup;
+use App\Models\Entity\UserGroupMember;
 use ServiceComponents\Rpc\User\UserGroupModelInterface;
 use Swoft\Rpc\Server\Bean\Annotation\Service;
 
@@ -27,8 +27,9 @@ class UserGroupModel implements UserGroupModelInterface
     }
     public function getAllFriends($id)
     {
-        $res = UserGroup::query()->innerJoin('user_group_member','user_group.id=user_group_member.user_group_id')
-                                 ->where('user_group.user_id' , $id)->get()->getResult();
+        UserGroupMember::findAll(['user_id' => $id]);
+        $res = UserGroup::query()->leftJoin('user_group_member','user_group.id=user_group_member.user_group_id')
+                                 ->where('user_group.user_id' , $id)->get(['user_group.*,user_group_member.remark_name'])->getResult();
         var_dump($res);
         /**
         $res = self::where('user_id',$id)

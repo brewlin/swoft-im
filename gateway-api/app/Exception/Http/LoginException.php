@@ -9,13 +9,15 @@
 namespace App\Exception\Http;
 
 
-use App\Enum\ExceptionEnum;
+use ServiceComponents\Enum\StatusEnum;
 
 class LoginException extends HttpExceptionHandler
 {
-    public $code = ExceptionEnum::FailCode;
+    public $code = StatusEnum::Fail;
 
     public $msg = '验证失败';
 
     public $data = [];
+
+    public $statusCode = 2000;
 }

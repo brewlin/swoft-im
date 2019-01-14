@@ -7,7 +7,7 @@
  */
 
 namespace App\Controllers\Api;
-use App\Enum\ExceptionEnum;
+use App\Enum\StatusEnum;
 use ServiceComponents\Rpc\Redis\UserCacheInterface;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Http\Server\Bean\Annotation\Controller;
@@ -37,28 +37,6 @@ class BaseController
         $user = $this->userCache->getUserByToken($token);
         $this->user = $user;
         $this->user['fd'] = $this->userCache->getFdByNum($user['number']);
-    }
-
-    //公用返回方法
-    public function success($data = null, $msg = null, $statusCode = ExceptionEnum::SuccessCode)
-    {
-        $data = [
-            "code" => $statusCode,
-            "data" => $data,
-            "msg" => $msg
-        ];
-        return $data;
-    }
-
-    //公用返回方法
-    public function error($data = null, $msg = null, $statusCode = ExceptionEnum::FailCode)
-    {
-        $data = [
-            "code" => $statusCode,
-            "data" => $data,
-            "msg" => $msg
-        ];
-        return $data;
     }
 }
 

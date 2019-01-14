@@ -7,9 +7,46 @@
  */
 
 namespace App\Controllers\Api;
+use ServiceComponents\Common\Message;
+use ServiceComponents\Rpc\Redis\UserCacheInterface;
+use ServiceComponents\Rpc\User\UserGroupModelInterface;
+use Swoft\Http\Message\Server\Request;
+use Swoft\Http\Server\Bean\Annotation\Controller;
+use Swoft\Http\Server\Bean\Annotation\RequestMapping;
+use Swoft\Rpc\Client\Bean\Annotation\Reference;
 
-
+/**
+ * Class InitController
+ * @package App\Controllers\Api
+ * @Controller("api/im")
+ */
 class InitController
 {
-
+    /**
+     * @Reference("userService")
+     * @var UserCacheInterface
+     */
+    private $userCache;
+    /**
+     * @Reference("userService")
+     * @var UserGroupModelInterface
+     */
+    private $userGroupModel;
+    /**
+     * @RequestMapping(route="init")
+     * @param Request $request
+     */
+    public function init($request)
+    {
+        //获取自己信息
+        $token = $request->input('token');
+        $user = $this->userCache->getUserByToken($token);
+        $user['status'] = 'online';
+        // 获取分组好友
+        $friends = $this->userGroupModel->getAllFriends($user['id']);
+        $data = GroupUserMemberService::getFriends($friends);
+        //获取群组信息
+        $groups = GroupMember::getGroupNames(['user_number'=>$user['number'],'status' => 1]);
+        return Message::sucess(['mine' => $user ,'friend' => $data, 'group' => $groups?$groups:[]]);
+    }
 }

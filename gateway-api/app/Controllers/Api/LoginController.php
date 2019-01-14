@@ -11,6 +11,7 @@ use App\Exception\Http\LoginException;
 use App\Exception\Http\ParameterException;
 use App\Exception\Http\RegisterException;
 use ServiceComponents\Common\Common;
+use ServiceComponents\Common\Message;
 use ServiceComponents\Rpc\Redis\UserCacheInterface;
 use ServiceComponents\Rpc\User\LoginServiceInterface;
 use ServiceComponents\Rpc\User\UserGroupModelInterface;
@@ -28,7 +29,7 @@ use Swoft\Rpc\Client\Bean\Annotation\Reference;
 class LoginController extends BaseController
 {
     /**
-     * @Reference("redisCache")
+     * @Reference("redisService")
      * @var UserCacheInterface
      */
     private $userCache;
@@ -56,8 +57,6 @@ class LoginController extends BaseController
      */
     public function login()
     {
-        $res = $this->userGroupModel->getAllFriends(2);
-        return $res;
         $email = request()->post('email');
         $password = request()->post()('password');
 
@@ -85,10 +84,10 @@ class LoginController extends BaseController
         $this->loginService->saveCache($token,$user);
 
         // 返回 token
-        return $this->success($token);
+        return Message::sucess($token);
     }
     /**
-     * @RequestMapping(route="register")
+     * @RequestMapping(route="/register")
      * @Strings(from=ValidatorFrom::POST,name="email")
      * @Strings(from=ValidatorFrom::POST,name="password")
      * @Strings(from=ValidatorFrom::POST,name="nickname")
@@ -126,13 +125,12 @@ class LoginController extends BaseController
             'number' => $number,
             'username' => $nickname
         ];
-        try {
-            $uid = $this->userModel->newUser($data);
-            GroupUser::addGroup($uid, "我的好友");
-        } catch (\Exception $e) {
-            throw $e;
-        }
-        return $this->success();
+        $uid = $this->userModel->newUser($data);
+        $res = $this->userGroupModel->addGroup($uid,"我的好友");
+        if($res)
+            return Message::sucess();
+        return Message::error();
+
     }
 
 

@@ -9,13 +9,15 @@
 namespace App\Exception\Http;
 
 
-use App\Enum\ExceptionEnum;
+use ServiceComponents\Enum\StatusEnum;
 
 class ParameterException extends HttpExceptionHandler
 {
-    public $code = ExceptionEnum::FailCode;
+    public $code = StatusEnum::Fail;
 
     public $msg = '参数错误';
 
     public $data = [];
+
+    public $statusCode = 2001;
 }

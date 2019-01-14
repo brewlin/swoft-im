@@ -49,26 +49,18 @@ class SwoftExceptionHandler
         $line      = $throwable->getLine();
         $code      = $throwable->getCode();
         $exception = $throwable->getMessage();
-
-        $data = ['msg' => $exception, 'file' => $file, 'line' => $line, 'code' => $code];
+        $data = ['msg' => $exception, 'file' => $file, 'line' => $line,'code' => $code];
         App::error(json_encode($data));
+        if(!env('APP_DEBUG'))
+        {
+            $code = $throwable->code;
+            $msg = $throwable->msg;
+            $data = $throwable->data;
+            $statusCode = $throwable->statusCode;
+            $data = ['code' => $code,'msg' => $msg,'data' => $data,'statusCode' => $statusCode];
+        }
         return $response->json($data);
     }
-    /**
-     * @Handler(HttpExceptionHandler::class)
-     * @param Response $response
-     * @param \Throwable $throwable
-     * @return Response
-     */
-    public function handlerHttpException(Response $response,\Throwable $throwable)
-    {
-        $code = $throwable->code;
-        $msg = $throwable->msg;
-        $data = $throwable->data;
-        return $response->json(['code' => $code,'data' => $data,'msg' => $msg]);
-
-    }
-
     /**
      * @Handler(RuntimeException::class)
      *

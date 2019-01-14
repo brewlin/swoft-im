@@ -44,7 +44,7 @@ class UserModel implements UserModelInterface
     }
     public function getNumberById($id)
     {
-        $user = user::findById($id)->getResult();
+        $user = User::findById($id)->getResult();
         return $user['number'];
     }
     public function getUserById($id)
