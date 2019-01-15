@@ -7,6 +7,8 @@
  */
 
 namespace App\Models\Dao;
+use App\Models\Entity\UserGroup;
+use App\Models\Entity\UserGroupMember;
 use Swoft\Bean\Annotation\Bean;
 
 /**
@@ -18,25 +20,22 @@ class UserGroupMemberDao
 {
     public function getAllFriends($id)
     {
-        return self::where('user_id',$id)->column('friend_id');
+        return UserGroupMember::findAll(['user_id' => $id])->getResult();
+       // return self::where('user_id',$id)->column('friend_id');
     }
 
     public function newFriend($uId, $friendId , $groupId )
     {
-        $model = new self();
-        $model->user_id = $uId;
-        $model->friend_id = $friendId;
-        $model->groupid = $groupId;
-        $model->save();
+        return (new UserGroupMember())->fill(['user_id' => $uId,'friend_id' => $friendId,'groupid' => $groupId])
+                                       ->save()
+                                       ->getResult();
     }
     /**
      * 修改好友备注名
      */
     public function editFriendRemarkName($uid , $friendId , $remark)
     {
-        return self::where('user_id' , $uid)
-            ->where('friend_id' , $friendId)
-            ->update(['remark_name' => $remark]);
+        return UserGroupMember::updateOne(['remar_name' => $remark],['user_id' => $uid,'friend_id' =>$friendId])->getResult();
     }
     /**
      * 移动联系人
@@ -46,14 +45,10 @@ class UserGroupMemberDao
      */
     public function moveFriend($uid , $friendId , $groupid)
     {
-        return self::where('user_id' , $uid)
-            ->where('friend_id' , $friendId)
-            ->update(['groupid' => $groupid]);
+        return UserGroupMember::updateOne(['groupid' => $groupid],['user_id' => $uid,'friend_id' => $friendId])->getResult();
     }
     public  function removeFriend($uid , $fiendId)
     {
-        return self::where('user_id' , $uid)
-            ->where('friend_id',$fiendId)
-            ->delete();
+        return UserGroupMember::deleteOne(['user_id' => $uid,'friend_id' => $fiendId])->getResult();
     }
 }
