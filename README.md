@@ -16,24 +16,8 @@ Cosul服务注册与发现、Mysql连接池、Redis连接池、异步任务、we
     - 开启所有服务 `make startAll`
 + 演示地址 http://im.huido.site 可以注册
 
-
-
-架构图
-=========
-服务依赖
------
-![](./resource/services.png)
-
-前端服务
------
-![](./resource/api.png)
-
-服务处理
-------
-![](./resource/swoole.png)
-
 服务开发
------------
+=========
 Gateway-Api && Websocket 中心网关服务
 -------
     接受web端webocket长连接通讯、api请求.
@@ -51,6 +35,19 @@ Gateway-Api && Websocket 中心网关服务
     
 Redis 中心网关服务
 -------
+架构图
+=========
+服务依赖
+-----
+![](./resource/services.png)
+
+前端服务
+-----
+![](./resource/api.png)
+
+服务处理
+------
+![](./resource/swoole.png)
 
 开发进度 && 实现功能
 ==========
