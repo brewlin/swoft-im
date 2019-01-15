@@ -4,3 +4,12 @@
 *resources/
 *dev.composer.json
 .idea/
+*changelog.md
+*CONTRIBUTING.md
+*.yml
+*phar.build.inc
+*LICENSE
+*Dockerfile
+*phpunit.xml
+*_CN.md
+*.phpintel/

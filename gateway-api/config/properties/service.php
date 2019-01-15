@@ -42,5 +42,36 @@ return [
         'balancer' => 'random',
         'provider' => 'consul',
     ],
-
+    'msg_service' => [
+        'name'        => 'msg_service',
+        'uri'         => [
+            '127.0.0.1:8093',
+            '127.0.0.1:8093',
+        ],
+        'minActive'   => 8,
+        'maxActive'   => 8,
+        'maxWait'     => 8,
+        'maxWaitTime' => 3,
+        'maxIdleTime' => 60,
+        'timeout'     => 8,
+        'useProvider' => false,
+        'balancer' => 'random',
+        'provider' => 'consul',
+    ],
+    'group_service' => [
+        'name'        => 'group_service',
+        'uri'         => [
+            '127.0.0.1:8094',
+            '127.0.0.1:8094',
+        ],
+        'minActive'   => 8,
+        'maxActive'   => 8,
+        'maxWait'     => 8,
+        'maxWaitTime' => 3,
+        'maxIdleTime' => 60,
+        'timeout'     => 8,
+        'useProvider' => false,
+        'balancer' => 'random',
+        'provider' => 'consul',
+    ],
 ];

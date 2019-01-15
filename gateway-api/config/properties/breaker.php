@@ -18,4 +18,14 @@ return [
         'successCount' => 3,
         'delayTime'    => 500,
     ],
+    'msg_service' => [
+        'failCount'    => 3,
+        'successCount' => 3,
+        'delayTime'    => 500,
+    ],
+    'group_service' => [
+        'failCount'    => 3,
+        'successCount' => 3,
+        'delayTime'    => 500,
+    ],
 ];

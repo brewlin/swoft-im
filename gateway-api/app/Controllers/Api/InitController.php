@@ -8,6 +8,7 @@
 
 namespace App\Controllers\Api;
 use ServiceComponents\Common\Message;
+use ServiceComponents\Rpc\Group\GroupMemberModelInterface;
 use ServiceComponents\Rpc\Redis\UserCacheInterface;
 use ServiceComponents\Rpc\User\UserGroupMemeberServiceInterface;
 use ServiceComponents\Rpc\User\UserGroupModelInterface;
@@ -39,6 +40,11 @@ class InitController
      */
     private $userGroupMemberService;
     /**
+     * @Reference("groupService")
+     * @var GroupMemberModelInterface
+     */
+    private $groupMemberModel;
+    /**
      * @RequestMapping(route="init")
      * @param Request $request
      */
@@ -52,7 +58,7 @@ class InitController
         $friends = $this->userGroupModel->getAllFriends($user['id']);
         $data = $this->userGroupMemberService->getFriends($friends);
         //获取群组信息
-        $groups = GroupMember::getGroupNames(['user_number'=>$user['number'],'status' => 1]);
+        $groups = $this->groupMemberModel->getGroupNames(['user_number'=>$user['number'],'status' => 1]);
         return Message::sucess(['mine' => $user ,'friend' => $data, 'group' => $groups?$groups:[]]);
     }
 }
