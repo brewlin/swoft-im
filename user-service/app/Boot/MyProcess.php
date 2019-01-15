@@ -10,7 +10,7 @@
 
 namespace App\Boot;
 
-use App\Models\Dao\UserDao;
+use App\Models\Dao\UserModelDao;
 use Swoft\App;
 use Swoft\Process\Bean\Annotation\Process;
 use Swoft\Process\Process as SwoftProcess;

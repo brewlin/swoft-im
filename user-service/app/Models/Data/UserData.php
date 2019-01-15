@@ -10,7 +10,7 @@
 
 namespace App\Models\Data;
 
-use App\Models\Dao\UserDao;
+use App\Models\Dao\UserModelDao;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
 
@@ -28,7 +28,7 @@ class UserData
     /**
      *
      * @Inject()
-     * @var UserDao
+     * @var UserModelDao
      */
     private $userDao;
 

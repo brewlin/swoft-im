@@ -9,17 +9,27 @@
 namespace App\Services;
 
 
+use App\Models\Dao\UserGroupMemberDao;
 use ServiceComponents\Rpc\User\UserGroupMemeberServiceInterface;
+use Swoft\Bean\Annotation\Inject;
+use Swoft\Rpc\Server\Bean\Annotation\Service;
 
 /**
  * Class UserGroupMemberService
  * @package App\Servicess
+ * @Service()
  */
 class UserGroupMemberService implements UserGroupMemeberServiceInterface
 {
+    /**
+     * @Inject()
+     * @var UserGroupMemberDao
+     */
+    private $userGroupMemberDao;
     public function getFriends($arr)
     {
-        foreach ($arr as &$group){
+        foreach ($arr as &$group)
+        {
             foreach ($group['list'] as $k => &$friend)
             {
                 //检查是否有昵称存在 有则替换当前的昵称
@@ -36,17 +46,23 @@ class UserGroupMemberService implements UserGroupMemeberServiceInterface
         }
         return $arr;
     }
+
+    /**
+     * @param $data
+     * @param $currentUid
+     * 添加好友
+     */
     public function newFriends($data ,$currentUid)
     {
-        $userMember = new GroupUserMember();
         //添加自己的好友
-        $userMember::newFriend($currentUid ,$data['friend_id'] ,$data['group_user_id']);
+        $this->userGroupMemberDao->newFriend($currentUid ,$data['friend_id'] ,$data['group_user_id']);
         //请求方添加好友
         //获取消息里的数据
         $friend = MsgBox::getDataById($data['msg_id']);
         $userMember::newFriend($friend['from'] , $friend['to'] ,$friend['group_user_id']);
     }
-    public function friendInfo($where){
+    public function friendInfo($where)
+    {
         $user = UserModel::where($where)->find();
         $user['status']  = UserCacheService::getTokenByNum($user['number'])?'online':'offline';   // 是否在线
         return $user;
