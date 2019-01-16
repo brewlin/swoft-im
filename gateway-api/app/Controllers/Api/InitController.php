@@ -10,7 +10,7 @@ namespace App\Controllers\Api;
 use ServiceComponents\Common\Message;
 use ServiceComponents\Rpc\Group\GroupMemberModelInterface;
 use ServiceComponents\Rpc\Redis\UserCacheInterface;
-use ServiceComponents\Rpc\User\UserGroupMemeberServiceInterface;
+use ServiceComponents\Rpc\User\UserGroupMemberServiceInterface;
 use ServiceComponents\Rpc\User\UserGroupModelInterface;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
@@ -36,7 +36,7 @@ class InitController
     private $userGroupModel;
     /**
      * @Reference("userService")
-     * @var UserGroupMemeberServiceInterface
+     * @var UserGroupMemberServiceInterface
      */
     private $userGroupMemberService;
     /**

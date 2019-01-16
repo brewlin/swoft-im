@@ -7,11 +7,15 @@
  */
 
 namespace App\Controllers\Api;
+use App\Exception\Http\GroupException;
 use App\Middlewares\TokenCheckMiddleware;
+use ServiceComponents\Common\Common;
 use ServiceComponents\Common\Message;
 use ServiceComponents\Rpc\Group\GroupMemberModelInterface;
 use ServiceComponents\Rpc\Group\GroupModelInterface;
+use ServiceComponents\Rpc\Redis\UserCacheInterface;
 use ServiceComponents\Rpc\User\UserModelInterface;
+use Swoft\Bean\Annotation\Strings;
 use Swoft\Http\Message\Bean\Annotation\Middleware;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
@@ -43,6 +47,11 @@ class GroupController extends BaseController
      */
     private $userModel;
     /**
+     * @Reference("redisCache")
+     * @var UserCacheInterface
+     */
+    private $userCacheService;
+    /**
      * @RequestMapping(route="/api/im/members",method={RequestMethod::GET})
      * @param Request $request
      */
@@ -59,17 +68,17 @@ class GroupController extends BaseController
     /**
      * 离开群组
      * @RequestMapping(route="group/leave",method={RequestMethod::GET})
+     * @Strings(from=ValidatorFrom::GET,name="id")
+     * @param Request $request
      */
-    public function leaveGroup()
+    public function leaveGroup($request)
     {
-        (new GroupMemberValidate('leave'))->goCheck($this->request());
-        $groupNumber = GroupMemberModel::getNumberById($this->request()->getRequestParam('id'));
-        $res = GroupMemberModel::delMemberById($this->user['number'] , $groupNumber);
+        $groupNumber = $this->groupMemberModel->getNumberById($request->query('id'));
+        $this->getCurrentUser();
+        $res = $this->groupMemberModel->delMemberById($this->user['number'] , $groupNumber);
         if(!$res)
-        {
-            return $this->error('','退出失败');
-        }
-        return $this->success('','退出成功');
+            return Message::error('','退出失败');
+        return Message::sucess('','退出成功');
     }
     /**
      * 检查用户是否可以继续创建群
@@ -77,21 +86,25 @@ class GroupController extends BaseController
      */
     public function checkUserCreateGroup()
     {
-        $list = Group::getGroup(['user_number' => $this->user['number']]);
+        $this->getCurrentUser();
+        $list = $this->groupModel->getGroup(['user_number' => $this->user['number']]);
         if(count($list) > 50)
-        {
-            return $this->error('','超过最大建群数');
-        }
-        return $this->success();
+            return Message::error('','超过最大建群数量');
+        return Message::sucess();
     }
     /**
      * 创建群
      * @RequestMapping(route="group/create",method={RequestMethod::POST})
+     * @Strings(from=ValidatorFrom::POST,name="groupName")
+     * @Strings(from=ValidatorFrom::POST,name="des")
+     * @Strings(from=ValidatorFrom::POST,name="number")
+     * @Strings(from=ValidatorFrom::POST,name="approval")
+     * @param Request $request
      */
-    public function createGroup()
+    public function createGroup($request)
     {
-        (new GroupMemberValidate('create'))->goCheck($this->request());
-        $data = $this->request()->getParsedBody();
+        $data = $request->post();
+        $this->getCurrentUser();
         // 生成唯一群号
         $number = Common::generate_code(8);
         // 保存群信息，并加入群
@@ -108,14 +121,10 @@ class GroupController extends BaseController
             'gnumber'       => $number,
             'user_number'   => $this->user['number'],
         ];
-        try{
-            $id =  Group::newGroup($group_data);
-            GroupMemberModel::newGroupMember($member_data);
-        }catch (\Exception $e){
-            Logger::getInstance()->log($e->getMessage(),'LTalk_debug');
-            $msg = (new WsException())->getMsg();
-            return $this->error(null,$msg);
-        }
+        $id =  $this->groupModel->newGroup($group_data);
+        $res = $this->groupMemberModel->newGroupMember($member_data);
+        if(!$res)
+            throw new GroupException(['msg' => '创建群失败']);
         $sendData  = [
             'id'            => $id,
             'avatar'         => '/timg.jpg',
@@ -125,11 +134,10 @@ class GroupController extends BaseController
 
         ];
         // 创建缓存
-        UserCacheService::setGroupFds($number, $this->user['fd']);
-        $server = ServerManager::getInstance()->getServer();
+        $this->userCacheService->setGroupFds($number, $this->user['fd']);
+        $server = \Swoft::$server;
         $server->push($this->user['fd'] , json_encode(['type'=>'ws','method'=> 'newGroup','data'=> $sendData]));
         $server->push($this->user['fd'] , json_encode(['type'=>'ws','method'=> 'ok','data'=> '创建成功']));
-        return $this->success(['groupid' => $number,'groupName' => $data['groupName']],'');
-
+        return Message::sucess(['groupid' => $number,'groupName' => $data['groupName']]);
     }
 }

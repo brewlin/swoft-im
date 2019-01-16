@@ -34,4 +34,11 @@ class Common
             return false;
         return htmlspecialchars(addslashes($str));
     }
+    //生成随机串号
+    public static function makeSerialNo()
+    {
+        $code = ['A','B','C','D','E','F','G','H','I','J'];
+        $serialNo = $code[intval(date('Y'))-2017].strtoupper(dechex(date('m'))).date('d').substr(time(), -5).substr(microtime(),2,5).sprintf('%02d',rand(0,99));
+        return $serialNo;
+    }
 }

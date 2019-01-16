@@ -8,9 +8,12 @@
 
 namespace App\Controllers\Api;
 use App\Middlewares\TokenCheckMiddleware;
+use ServiceComponents\Common\Message;
+use ServiceComponents\Rpc\Msg\MsgModelInterface;
 use Swoft\Http\Message\Bean\Annotation\Middleware;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
+use Swoft\Rpc\Client\Bean\Annotation\Reference;
 
 /**
  * Class MsgController
@@ -18,15 +21,22 @@ use Swoft\Http\Server\Bean\Annotation\RequestMapping;
  * @Controller(prefix="api/im/msg")
  * @Middleware(class=TokenCheckMiddleware::class)
  */
-class MsgController
+class MsgController extends BaseController
 {
+    /**
+     * @Reference("msgService")
+     * @var MsgModelInterface
+     */
+    private $msbModel;
     /**
      * @RequestMapping(route="box/info")
      */
     public function getPersonalMsgBox()
     {
-        return "sfs";
-
+        //返回form和to都为自己的信息
+        $this->getCurrentUser();
+        $res = $this->msbModel->getDataByUserId($this->user['id']);
+        return Message::sucess($res);
     }
 
 }
