@@ -111,7 +111,7 @@ class LoginController extends BaseController
         if (!empty($user))
             throw new RegisterException(['msg' => '该用户已存在']);
 
-        // 生成唯一 LTalk number
+        // 生成唯一number
         $number = Common::generate_code();
         while ($this->userModel->getUser(['number' => $number])) {
             $number = Common::generate_code();
