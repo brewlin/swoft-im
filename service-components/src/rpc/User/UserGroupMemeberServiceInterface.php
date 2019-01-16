@@ -12,7 +12,7 @@ namespace ServiceComponents\Rpc\User;
  * Interface UserGroupMemeberServiceInterface
  * @package ServiceComponents\Rpc\User
  */
-interface UserGroupMemeberServiceInterface
+interface UserGroupMemberServiceInterface
 {
     public  function getFriends($arr);
     public  function newFriends($data ,$currentUid);

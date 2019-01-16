@@ -10,7 +10,7 @@ namespace App\Services;
 
 
 use App\Models\Dao\UserGroupMemberDao;
-use ServiceComponents\Rpc\User\UserGroupMemeberServiceInterface;
+use ServiceComponents\Rpc\User\UserGroupMemberServiceInterface;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Rpc\Server\Bean\Annotation\Service;
 
@@ -19,7 +19,7 @@ use Swoft\Rpc\Server\Bean\Annotation\Service;
  * @package App\Servicess
  * @Service()
  */
-class UserGroupMemberService implements UserGroupMemeberServiceInterface
+class UserGroupMemberService implements UserGroupMemberServiceInterface
 {
     /**
      * @Inject()
