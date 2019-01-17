@@ -11,6 +11,8 @@ namespace App\Controllers\Api;
 
 use ServiceComponents\Common\Message;
 use ServiceComponents\Rpc\User\UserGroupMemberModelInterface;
+use ServiceComponents\Rpc\User\UserModelInterface;
+use Swoft\Bean\Annotation\CachePut;
 use Swoft\Bean\Annotation\Strings;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
@@ -31,6 +33,11 @@ class UserGroupMemberController extends BaseController
      */
     private $userGroupMemberModel;
     /**
+     * @Reference("userService")
+     * @var UserModelInterface
+     */
+    private $userModel;
+    /**
      * 编辑好友备注名
      * @RequestMapping(route="friend/remark",method={RequestMethod::POST})
      * @Strings(from=ValidateFrom::POST,name="friend_id")
@@ -48,43 +55,48 @@ class UserGroupMemberController extends BaseController
     }
     /**
      * 移动好友分组
+     * @RequestMapping(route="friend/move",method={RequestMethod::POST})
+     * @Strings(from=ValidateFrom::POST,name="friend_id")
+     * @Strings(from=ValidateFrom::POST,name="groupid")
+     * @param Request $request
      */
-    public function moveFriendToGroup()
+    public function moveFriendToGroup($request)
     {
-        (new GroupUserMemberValidate('move'))->goCheck($this->request());
-        $data = $this->request()->getRequestParam();
-        $res = GroupUserMemberModel::moveFriend($this->user['id'] , $data['friend_id'] , $data['groupid']);
+        $data = $request->post();
+        $this->getCurrentUser();
+        $res = $this->userGroupMemberModel->moveFriend($this->user['id'] , $data['friend_id'] , $data['groupid']);
         if($res)
         {
             //返回好友信息
-            $user = User::getUser(['id' => $data['friend_id']]);
-            return $this->success($user);
+            $user = $this->userModel->getUser(['id' => $data['friend_id']]);
+            return Message::sucess($user);
         }
-        return $this->error('','移动失败');
+        return Message::error('','移动失败');
     }
     /**
      * 删除好友
+     * @RequestMapping(route="friend/remove",method={RequestMethod::POST})
+     * @Strings(from=ValidateFrom::POST,name="friend_id")
+     * @param Request $request
      */
-    public function removeFriend()
+    public function removeFriend($request)
     {
-        (new GroupUserMemberValidate('remove'))->goCheck($this->request());
-        $data = $this->request()->getRequestParam();
-        $res = GroupUserMemberModel::removeFriend($this->user['id'] , $data['friend_id']);
+        $data = $request->post();
+        $this->getCurrentUser();
+        $res = $this->userGroupMemberModel->removeFriend($this->user['id'] , $data['friend_id']);
         if($res)
-        {
-            return $this->success('','删除成功');
-        }
-        return $this->error('','修改成功');
+            return Message::sucess('','删除成功');
+        return Message::error('','修改失败');
     }
     /**
      * 获取推荐好友
+     * @RequestMapping(route="friend/recoomend",method={RequestMethod::GET})
      */
     public function getRecommendFriend()
     {
         //获取所有好友
-        $list = User::getAllUser();
+        $list = $this->userModel->getAllUser();
         //去除已经是本人的好友关系
-        return $this->success($list);
-
+        return Message::sucess($list);
     }
 }
