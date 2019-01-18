@@ -10,7 +10,7 @@
 return [
 
     'redis_service' => [
-        'name'        => 'redis-service',
+        'name'        => 'redis_service',
         'uri'         => [
             '127.0.0.1:8091',
             '127.0.0.1:8091',

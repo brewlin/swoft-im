@@ -7,10 +7,14 @@
  */
 
 namespace App\Controllers\Api;
+use ServiceComponents\Common\Message;
+use ServiceComponents\Rpc\User\UserRecordServiceInterface;
 use Swoft\Bean\Annotation\Strings;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
+use Swoft\Http\Server\Bean\Annotation\RequestMethod;
+use Swoft\Rpc\Client\Bean\Annotation\Reference;
 
 /**
  * Class UserRecordControoler
@@ -20,8 +24,13 @@ use Swoft\Http\Server\Bean\Annotation\RequestMapping;
 class UserRecordControoler extends BaseController
 {
     /**
+     * @Reference("useService")
+     * @var UserRecordServiceInterface
+     */
+    private $userRecordService;
+    /**
      * @return mixed
-     * @RequestMapping(route="record",method={RequestMethod::POST})
+     * @RequestMapping(route="record",method={RequestMethod::GET})
      * @Strings(from=ValidateFrom::POST,name="id")
      * @Strings(from=ValidateFrom::POST,name="type")
      * @Strings(from=ValidateFrom::POST,name="token")
@@ -29,21 +38,26 @@ class UserRecordControoler extends BaseController
      */
     public function getChatRecordByToken($request)
     {
-        $res = RecordServer::getAllChatRecordById($this->user['id'] , $this->request()->getRequestParam());
-        return $this->success($res);
-
+        $this->getCurrentUser();
+        $res = $this->userRecordService->getAllChatRecordById($this->user['id'] , $request->query());
+        return Message::sucess($res);
     }
 
     /**
      * 更新已读消息
+     * @RequestMapping(route="chat/record/read",method={RequestMethod::POST})
+     * @Strings(from=ValidateFrom::POST,name="uid")
+     * @Strings(from=ValidateFrom::POST,name="type")
+     * @Strings(from=ValidateFrom::POST,name="token")
+     * @param Request $request
      */
-    public function updateIsReadChatRecord()
+    public function updateIsReadChatRecord($request)
     {
-        (new \App\Validate\ChatRecord('read'))->goCheck($this->request());
-        $where = ['to_id' => $this->user['id'],'uid' => $this->request()->getParsedBody('uid'),'is_read' => 0];
+        $this->getCurrentUser();
+        $where = ['to_id' => $this->user['id'],'uid' => $request->post('uid'),'is_read' => 0];
         $data = ['is_read' => 1];
-        $type = $this->request()->getParsedBody('type');
-        RecordServer::updateChatRecordIsRead($where,$data,$type);
-        return $this->success([],'收取消息成功');
+        $type = $request->post('type');
+        $this->userRecordService->updateChatRecordIsRead($where,$data,$type);
+        return Message::sucess([],'收取消息成功');
     }
 }
