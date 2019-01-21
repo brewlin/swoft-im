@@ -10,8 +10,13 @@ namespace App\Services;
 
 
 use App\Models\Dao\UserGroupMemberDao;
+use App\Models\Dao\UserModelDao;
+use App\Models\Entity\User;
+use ServiceComponents\Rpc\Msg\MsgModelInterface;
+use ServiceComponents\Rpc\Redis\UserCacheInterface;
 use ServiceComponents\Rpc\User\UserGroupMemberServiceInterface;
 use Swoft\Bean\Annotation\Inject;
+use Swoft\Rpc\Client\Bean\Annotation\Reference;
 use Swoft\Rpc\Server\Bean\Annotation\Service;
 
 /**
@@ -22,10 +27,25 @@ use Swoft\Rpc\Server\Bean\Annotation\Service;
 class UserGroupMemberService implements UserGroupMemberServiceInterface
 {
     /**
+     * @Reference("msgService")
+     * @var MsgModelInterface
+     */
+    private $msgModel;
+    /**
      * @Inject()
      * @var UserGroupMemberDao
      */
     private $userGroupMemberDao;
+    /**
+     * @Inject()
+     * @var UserModelDao;
+     */
+    private $userModelDao;
+    /**
+     * @Reference("redisService")
+     * @var UserCacheInterface
+     */
+    private $userCacheService;
     public function getFriends($arr)
     {
         foreach ($arr as &$group)
@@ -36,11 +56,11 @@ class UserGroupMemberService implements UserGroupMemberServiceInterface
                 if(!empty($friend['remark_name']))
                 {
                     $name = $friend['remark_name'];
-                    $group['list'][$k] = self::friendInfo(['id' => $friend['friend_id']]);
+                    $group['list'][$k] = $this->friendInfo(['id' => $friend['friend_id']]);
                     $group['list'][$k]['username'] = $name;
                 }else
                 {
-                    $group['list'][$k] = self::friendInfo(['id' => $friend['friend_id']]);
+                    $group['list'][$k] = $this->friendInfo(['id' => $friend['friend_id']]);
                 }
             }
         }
@@ -58,18 +78,19 @@ class UserGroupMemberService implements UserGroupMemberServiceInterface
         $this->userGroupMemberDao->newFriend($currentUid ,$data['friend_id'] ,$data['group_user_id']);
         //请求方添加好友
         //获取消息里的数据
-        $friend = MsgBox::getDataById($data['msg_id']);
-        $userMember::newFriend($friend['from'] , $friend['to'] ,$friend['group_user_id']);
+        $friend = $this->msgModel->getDataById($data['msg_id']);
+        $this->userGroupMemberDao->newFriend($friend['from'] , $friend['to'] ,$friend['group_user_id']);
     }
     public function friendInfo($where)
     {
-        $user = UserModel::where($where)->find();
-        $user['status']  = UserCacheService::getTokenByNum($user['number'])?'online':'offline';   // 是否在线
+        $user = User::findOne($where)->getResult();
+        $user['status']  = $this->userCacheService->getTokenByNum($user['number'])?'online':'offline';   // 是否在线
         return $user;
     }
 
     // 处理接收或拒绝添加好友的通知操作
-    public function doReq($data){
+    public function doReq($data)
+    {
         $from_number = $data['from_number'];
         $number      = $data['number'];
         $check       = $data['check'];

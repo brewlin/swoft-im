@@ -57,7 +57,7 @@ class UserRecordService implements UserRecordServiceInterface
     /**
      * 更新聊天记录的状态
      */
-    public function updateChatRecordIsRead($where,$data)
+    public function updateChatRecordIsRead($where,$data,$type)
     {
         return $this->userRecordModelDao->updateByWhere($where,$data);
     }

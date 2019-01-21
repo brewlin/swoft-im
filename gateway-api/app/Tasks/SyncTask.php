@@ -10,14 +10,6 @@
 
 namespace App\Tasks;
 
-use App\Lib\DemoInterface;
-use App\Models\Entity\User;
-use Swoft\App;
-use Swoft\Bean\Annotation\Inject;
-use Swoft\HttpClient\Client;
-use Swoft\Redis\Redis;
-use Swoft\Rpc\Client\Bean\Annotation\Reference;
-use Swoft\Task\Bean\Annotation\Scheduled;
 use Swoft\Task\Bean\Annotation\Task;
 
 /**
@@ -27,167 +19,82 @@ use Swoft\Task\Bean\Annotation\Task;
  */
 class SyncTask
 {
-    /**
-     * @Reference("user-service")
-     *
-     * @var DemoInterface
-     */
-    private $demoService;
-
-    /**
-     * @Inject()
-     * @var \App\Models\Logic\UserLogic
-     */
-    private $logic;
-
-    /**
-     * Deliver co task
-     *
-     * @param string $p1
-     * @param string $p2
-     *
-     * @return string
-     */
-    public function deliverCo(string $p1, string $p2)
+    public function sendMsg($data)
     {
-        App::profileStart('co');
-        App::trace('trace');
-        App::info('info');
-        App::pushlog('key', 'stelin');
-        App::profileEnd('co');
-
-        return sprintf('deliverCo-%s-%s', $p1, $p2);
-    }
-    public function taskTest($test)
-    {
-        var_dump("2");
-        return $test;
+        $fd = $data['fd'];
+        $res = $data['data'];
+        return \Swoft::$server->push($fd,json_encode($res));
     }
     /**
-     * Deliver async task
-     *
-     * @param string $p1
-     * @param string $p2
-     *
-     * @return string
+     * 发送群组聊天
+     * @param $data
      */
-    public function deliverAsync(string $p1, string $p2)
+    public function sendGroupMsg($data)
     {
-        App::profileStart('co');
-        App::trace('trace');
-        App::info('info');
-        App::pushlog('key', 'stelin');
-        App::profileEnd('co');
-
-        return sprintf('deliverCo-%s-%s', $p1, $p2);
+        $fd = $data['fd'];
+        $res = $data['res'];
+        $fds = $data['fds'];
+        $serv = \Swoft::$server;
+        foreach ($fds as $v)
+            if($fd != $v)
+                $serv->push($v, json_encode($res));
     }
 
+
+    public function sendOfflineMsg($data)
+    {
+        $server = \Swoft::$server;
+        $fd = $data['fd'];
+        $sendData = $data['data'];
+        $server->after(3000, function () use ($server,$fd,$sendData) {
+            foreach ($sendData['data'] as $res)
+            {
+                $tmp = [];
+                $tmp['type'] = $sendData['type'];
+                $tmp['method'] = $sendData['method'];
+                $tmp['data'] = $res;
+                $server->push($fd,json_encode($tmp));
+            }
+        });
+        return true;
+    }
     /**
-     * Cache task
-     *
-     * @return string
+     * @param $data
+     * 公用执行方法
      */
-    public function cache()
+    public function doJob($data)
     {
-        /* @var Redis $cache */
-        $cache = \Swoft\App::getBean(Redis::class);
-//        $ret1 = $cache->deferCall('set', ['name1', 'swoft1'])->getResult();
-        $ret1 = $cache->deferCall('set', ['name1', 'swoft1']);
-//        return cache('cacheKey');
-        return 111;
+        $model = new $data['class'];
+        $method = $data['method'];
+        $model->$method($data['data']);
     }
-
-    /**
-     * Mysql task
-     *
-     * @return array
-     */
-    public function mysql(){
-        $result = User::findById(4212)->getResult();
-
-        $query = User::findById(4212);
-
-        /* @var User $user */
-        $user = $query->getResult(User::class);
-        return [$result, $user->getName()];
+    public function saveMysql($data){
+        $model = new $data['class'];
+        $method = $data['method'];
+        $model::$method($data['data']);
     }
-
-    /**
-     * Http task
-     *
-     * @return mixed
-     */
-    public function http()
-    {
-        $client = new Client();
-        $response = $client->get('http://www.swoft.org')->getResponse()->getBody()->getContents();
-        $response2 = $client->get('http://127.0.0.1/redis/testCache')->getResponse()->getBody()->getContents();
-
-        $data['result1'] = $response;
-        $data['result2'] = $response2;
-        return $data;
-    }
-
-    public function console(string $data)
-    {
-        var_dump('console', $data);
-        return ['console'];
-    }
-
-    /**
-     * Rpc task
-     *
-     * @return mixed
-     */
-    public function rpc()
-    {
-        $user = $this->demoService->getUser('6666');
-        $defer1 = $this->demoService->deferGetUser('666');
-        $defer2 = $this->demoService->deferGetUser('888');
-
-        $result1 = $defer1->getResult();
-        $result2 = $defer2->getResult();
-        return [$user, $result1, $result2];
-    }
-
-    /**
-     * Rpc task
-     *
-     * @return mixed
-     */
-    public function rpc2()
-    {
-        return $this->logic->rpcCall();
-    }
-
-    public function batchTask(){
-        sleep(mt_rand(1, 2));
-
-        /* @var User $user*/
-        $user = User::findById(80368)->getResult();
-        return $user->toJson();
-    }
-
-    /**
-     * crontab定时任务
-     * 每一秒执行一次
-     *
-     * Scheduled(cron="* * * * * *")
-     */
-    public function cronTask()
-    {
-        echo time() . "每一秒执行一次  \n";
-        return 'cron';
-    }
-
-    /**
-     * 每分钟第3-5秒执行
-     *
-     * Scheduled(cron="3-5 * * * * *")
-     */
-    public function cronooTask()
-    {
-        echo time() . "第3-5秒执行\n";
-        return 'cron';
+    public function sendToALl($data){
+        $serv = \Swoft::$server;
+        $start_fd = 0;
+        $myfd = $data['fd'];
+        unset($data['fd']);
+        while(true)
+        {
+            $conn_list = $serv->connection_list($start_fd, 10);
+            if($conn_list===false or count($conn_list) === 0)
+            {
+                break;
+            }
+            $start_fd = end($conn_list);
+            foreach($conn_list as $fd)
+            {
+                if($myfd!=$fd){
+                    $status = $serv->connection_info($fd);
+                    if($status['websocket_status']==3){
+                        $serv->push($fd, json_encode($data));
+                    }
+                }
+            }
+        }
     }
 }
