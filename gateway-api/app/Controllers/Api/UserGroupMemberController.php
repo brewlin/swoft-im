@@ -14,6 +14,7 @@ use ServiceComponents\Rpc\User\UserGroupMemberModelInterface;
 use ServiceComponents\Rpc\User\UserModelInterface;
 use Swoft\Bean\Annotation\CachePut;
 use Swoft\Bean\Annotation\Strings;
+use Swoft\Bean\Annotation\ValidatorFrom;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
@@ -40,8 +41,8 @@ class UserGroupMemberController extends BaseController
     /**
      * 编辑好友备注名
      * @RequestMapping(route="friend/remark",method={RequestMethod::POST})
-     * @Strings(from=ValidateFrom::POST,name="friend_id")
-     * @Strings(from=ValidateFrom::POST,name="friend_name")
+     * @Strings(from=ValidatorFrom::POST,name="friend_id")
+     * @Strings(from=ValidatorFrom::POST,name="friend_name")
      * @param Request $request
      */
     public function editFriendRemarkName($request)
@@ -56,8 +57,8 @@ class UserGroupMemberController extends BaseController
     /**
      * 移动好友分组
      * @RequestMapping(route="friend/move",method={RequestMethod::POST})
-     * @Strings(from=ValidateFrom::POST,name="friend_id")
-     * @Strings(from=ValidateFrom::POST,name="groupid")
+     * @Strings(from=ValidatorFrom::POST,name="friend_id")
+     * @Strings(from=ValidatorFrom::POST,name="groupid")
      * @param Request $request
      */
     public function moveFriendToGroup($request)
@@ -76,7 +77,7 @@ class UserGroupMemberController extends BaseController
     /**
      * 删除好友
      * @RequestMapping(route="friend/remove",method={RequestMethod::POST})
-     * @Strings(from=ValidateFrom::POST,name="friend_id")
+     * @Strings(from=ValidatorFrom::POST,name="friend_id")
      * @param Request $request
      */
     public function removeFriend($request)

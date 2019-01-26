@@ -11,6 +11,7 @@ use ServiceComponents\Common\Message;
 use ServiceComponents\Rpc\Redis\UserCacheInterface;
 use ServiceComponents\Rpc\User\UserGroupModelInterface;
 use Swoft\Bean\Annotation\Strings;
+use Swoft\Bean\Annotation\ValidatorFrom;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
@@ -37,8 +38,8 @@ class UserGroupController extends BaseController
     /**
      * 分组名添加
      * @RequestMapping(route="user/add",method={RequestMethod::GET})
-     * @Strings(from=ValidateFrom::GET,name="token")
-     * @Strings(from=ValidateFrom::GET,name="groupname")
+     * @Strings(from=ValidatorFrom::GET,name="token")
+     * @Strings(from=ValidatorFrom::GET,name="groupname")
      * @param Request $request
      */
     public function addMyGroup($request)
@@ -52,8 +53,8 @@ class UserGroupController extends BaseController
     /**
      * 分组名修改
      * @RequestMapping(route="user/edit",method={RequestMethod::GET})
-     * @Strings(from=ValidateFrom::GET,name="id")
-     * @Strings(from=ValidateFrom::GET,name="groupname")
+     * @Strings(from=ValidatorFrom::GET,name="id")
+     * @Strings(from=ValidatorFrom::GET,name="groupname")
      * @param Request $request
      */
     public function editMyGroup($request)
@@ -67,7 +68,7 @@ class UserGroupController extends BaseController
     /**
      * 删除分组名
      * @RequestMapping(route="user/del",method={RequestMethod::GET})
-     * @Strings(from=ValidateFrom::GET,name="id")
+     * @Strings(from=ValidatorFrom::GET,name="id")
      * @param Request $request
      */
     public function delMyGroup($request)

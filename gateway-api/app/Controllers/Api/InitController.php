@@ -48,7 +48,7 @@ class InitController
      * @RequestMapping(route="init")
      * @param Request $request
      */
-    public function init($request)
+    public function initIm($request)
     {
         //获取自己信息
         $token = $request->input('token');

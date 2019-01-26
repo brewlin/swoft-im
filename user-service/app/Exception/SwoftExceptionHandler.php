@@ -10,9 +10,11 @@
 
 namespace App\Exception;
 
+use App\Exception\Http\HttpExceptionHandler;
 use Swoft\App;
 use Swoft\Bean\Annotation\ExceptionHandler;
 use Swoft\Bean\Annotation\Handler;
+use Swoft\Bean\Annotation\PointExecution;
 use Swoft\Exception\RuntimeException;
 use Exception;
 use Swoft\Http\Message\Server\Request;
@@ -47,12 +49,18 @@ class SwoftExceptionHandler
         $line      = $throwable->getLine();
         $code      = $throwable->getCode();
         $exception = $throwable->getMessage();
-
-        $data = ['msg' => $exception, 'file' => $file, 'line' => $line, 'code' => $code];
+        $data = ['msg' => $exception, 'file' => $file, 'line' => $line,'code' => $code];
         App::error(json_encode($data));
+        if(!env('APP_DEBUG'))
+        {
+            $code = $throwable->code;
+            $msg = $throwable->msg;
+            $data = $throwable->data;
+            $statusCode = $throwable->statusCode;
+            $data = ['code' => $code,'msg' => $msg,'data' => $data,'statusCode' => $statusCode];
+        }
         return $response->json($data);
     }
-
     /**
      * @Handler(RuntimeException::class)
      *
@@ -82,8 +90,10 @@ class SwoftExceptionHandler
     {
         $exception = $throwable->getMessage();
 
-        return $response->json(['message' => $exception]);
+        return $response->json(['code' => 4,'data' => [],'msg' => $exception]);
     }
+
+
 
     /**
      * @Handler(BadRequestException::class)

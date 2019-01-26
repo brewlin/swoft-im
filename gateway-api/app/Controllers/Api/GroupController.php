@@ -16,6 +16,7 @@ use ServiceComponents\Rpc\Group\GroupModelInterface;
 use ServiceComponents\Rpc\Redis\UserCacheInterface;
 use ServiceComponents\Rpc\User\UserModelInterface;
 use Swoft\Bean\Annotation\Strings;
+use Swoft\Bean\Annotation\ValidatorFrom;
 use Swoft\Http\Message\Bean\Annotation\Middleware;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;

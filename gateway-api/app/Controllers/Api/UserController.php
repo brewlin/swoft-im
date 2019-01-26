@@ -16,6 +16,7 @@ use ServiceComponents\Rpc\User\UserGroupMemberServiceInterface;
 use ServiceComponents\Rpc\User\UserGroupModelInterface;
 use ServiceComponents\Rpc\User\UserModelInterface;
 use Swoft\Bean\Annotation\Strings;
+use Swoft\Bean\Annotation\ValidatorFrom;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
@@ -62,8 +63,8 @@ class UserController extends BaseController
     /**
      * 获取群信息 或者获取好友信息
      * @RequestMapping(route="friend/info")
-     * @Strings(from=ValidateFrom::GET,name="type")
-     * @Strings(from=ValidateFrom::GET,name="id")
+     * @Strings(from=ValidatorFrom::GET,name="type")
+     * @Strings(from=ValidatorFrom::GET,name="id")
      * @param Request $request
      */
     public function getInformation($request)
@@ -150,7 +151,7 @@ class UserController extends BaseController
     /**
      * 修改用户签名
      * @RequestMapping(route="user/sign",method={RequestMethod::GET})
-     * @Strings(from=ValidateFrom::GET,name="sign")
+     * @Strings(from=ValidatorFrom::GET,name="sign")
      */
     public function editSignature()
     {
@@ -164,8 +165,8 @@ class UserController extends BaseController
     /**
      * 查找好友 群
      * @RequestMapping(route="find/total",method={RequestMethod::GET})
-     * @Strings(from=ValidateFrom::GET,name="value")
-     * @Strings(from=ValidateFrom::GET,name="type")
+     * @Strings(from=ValidatorFrom::GET,name="value")
+     * @Strings(from=ValidatorFrom::GET,name="type")
      */
     public function findFriendTotal()
     {
@@ -181,9 +182,9 @@ class UserController extends BaseController
     /**
      * 查找好友 群 统计数量
      * @RequestMapping(route="find/friend",method={RequestMethod::GET})
-     * @Strings(from=ValidateFrom::GET,name="value")
-     * @Strings(from=ValidateFrom::GET,name="type")
-     * @Strings(from=ValidateFrom::GET,name="page")
+     * @Strings(from=ValidatorFrom::GET,name="value")
+     * @Strings(from=ValidatorFrom::GET,name="type")
+     * @Strings(from=ValidatorFrom::GET,name="page")
      * @param Request $request
      */
     public function findFriend($request)

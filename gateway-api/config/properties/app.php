@@ -36,5 +36,6 @@ return [
     'components'   => [
         'custom'   => [
         ]
-    ]
+    ],
+
 ];

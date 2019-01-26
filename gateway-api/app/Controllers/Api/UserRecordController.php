@@ -10,6 +10,7 @@ namespace App\Controllers\Api;
 use ServiceComponents\Common\Message;
 use ServiceComponents\Rpc\User\UserRecordServiceInterface;
 use Swoft\Bean\Annotation\Strings;
+use Swoft\Bean\Annotation\ValidatorFrom;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
@@ -31,9 +32,9 @@ class UserRecordController extends BaseController
     /**
      * @return mixed
      * @RequestMapping(route="record",method={RequestMethod::GET})
-     * @Strings(from=ValidateFrom::POST,name="id")
-     * @Strings(from=ValidateFrom::POST,name="type")
-     * @Strings(from=ValidateFrom::POST,name="token")
+     * @Strings(from=ValidatorFrom::POST,name="id")
+     * @Strings(from=ValidatorFrom::POST,name="type")
+     * @Strings(from=ValidatorFrom::POST,name="token")
      * @param Request $request
      */
     public function getChatRecordByToken($request)
@@ -46,9 +47,9 @@ class UserRecordController extends BaseController
     /**
      * 更新已读消息
      * @RequestMapping(route="chat/record/read",method={RequestMethod::POST})
-     * @Strings(from=ValidateFrom::POST,name="uid")
-     * @Strings(from=ValidateFrom::POST,name="type")
-     * @Strings(from=ValidateFrom::POST,name="token")
+     * @Strings(from=ValidatorFrom::POST,name="uid")
+     * @Strings(from=ValidatorFrom::POST,name="type")
+     * @Strings(from=ValidatorFrom::POST,name="token")
      * @param Request $request
      */
     public function updateIsReadChatRecord($request)

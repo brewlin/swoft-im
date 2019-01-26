@@ -51,14 +51,16 @@ class LoginController extends BaseController
     private $loginService;
 
     /**
-     * @RequestMapping(route="/login")
      * 用户登录
      * 验证通过后，将信息存入 redis
+     * @RequestMapping(route="/login")
+     * @Strings(from=ValidatorFrom::POST,name="email")
+     * @Strings(from=ValidatorFrom::POST,name="password")
      */
     public function login()
     {
         $email = request()->post('email');
-        $password = request()->post()('password');
+        $password = request()->post('password');
 
         // 查询用户是否已经存在
         $user = $this->userModel->getUser(['email' => $email]);
