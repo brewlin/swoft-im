@@ -49,16 +49,15 @@ class SwoftExceptionHandler
         $line      = $throwable->getLine();
         $code      = $throwable->getCode();
         $exception = $throwable->getMessage();
-        $data = ['msg' => $exception, 'file' => $file, 'line' => $line,'code' => $code];
-        App::error(json_encode($data));
-        if(!env('APP_DEBUG'))
-        {
-            $code = $throwable->code;
-            $msg = $throwable->msg;
+        $data = [];
+        $statusCode = 10000;
+        if(property_exists($throwable,'data'))
             $data = $throwable->data;
+        if(property_exists($throwable,'statusCode'))
             $statusCode = $throwable->statusCode;
-            $data = ['code' => $code,'msg' => $msg,'data' => $data,'statusCode' => $statusCode];
-        }
+
+        $data = ['code' => $code,'msg' => $exception,'data' => $data,'statusCode' => $statusCode, 'file' => $file, 'line' => $line];
+        App::error(json_encode($data));
         return $response->json($data);
     }
     /**

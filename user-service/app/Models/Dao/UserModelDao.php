@@ -10,6 +10,7 @@ namespace App\Models\Dao;
 
 
 use App\Models\Entity\User;
+use ServiceComponents\Common\Message;
 use Swoft\Bean\Annotation\Bean;
 
 /**

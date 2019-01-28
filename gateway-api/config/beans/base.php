@@ -10,9 +10,9 @@
 return [
     'serverDispatcher' => [
         'middlewares' => [
-            \Swoft\View\Middleware\ViewMiddleware::class,
-            // \Swoft\Session\Middleware\SessionMiddleware::class,
-            \Swoft\Devtool\Middleware\DevToolMiddleware::class,
+//            \Swoft\View\Middleware\ViewMiddleware::class,
+//            // \Swoft\Session\Middleware\SessionMiddleware::class,
+//            \Swoft\Devtool\Middleware\DevToolMiddleware::class,
         ]
     ],
     'httpRouter'       => [

@@ -29,7 +29,7 @@ return [
     'breaker'      => require __DIR__ . DS . 'breaker.php',
     'provider'     => require __DIR__ . DS . 'provider.php',
     'devtool'      => [
-        'enable' =>true,
+        'enable' =>false,
         'logEventToConsole' =>  true,
         'logHttpRequestToConsole' => true
     ],

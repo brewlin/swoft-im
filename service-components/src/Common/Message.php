@@ -33,5 +33,11 @@ class Message
         ];
         return $data;
     }
+    public static function response($data)
+    {
+        if($data)
+            return $data;
+        return [];
+    }
 
 }

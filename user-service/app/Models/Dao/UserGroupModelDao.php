@@ -7,6 +7,8 @@
  */
 
 namespace App\Models\Dao;
+use App\Models\Entity\UserGroup;
+use App\Models\Entity\UserGroupMember;
 use Swoft\Bean\Annotation\Bean;
 
 /**
@@ -42,9 +44,9 @@ class UserGroupModelDao
     public function addGroup($userId , $groupname)
     {
         $data['user_id'] = $userId;
-        $data['groupname'] = $groupname;
+        $data['group_name'] = $groupname;
         $data['status'] = 1;
-        return self::create($data);
+        return (new UserGroup())->fill($data)->save()->getResult();
     }
 
     /**
@@ -54,7 +56,7 @@ class UserGroupModelDao
      */
     public function editGroup($id , $groupname)
     {
-        return self::update(['groupname' => $groupname],['id' => $id]);
+        return UserGroup::updateOne(['group_name' => $groupname],['id' => $id])->getResult();
     }
     /**
      * 删除分组名
@@ -63,22 +65,21 @@ class UserGroupModelDao
      */
     public function delGroup($id ,  $user)
     {
-        $group = self::get($id);
+        $group = UserGroup::findById($id)->getResult();
         if($group['user_id'] != $user['id'])
         {
             return false;
         }
-        $default = self::getDefaultGroupUser($user['id']);
-        (new GroupUserMember())->where('user_id',$user['id'])
-            ->where('groupid' , $id)
-            ->update(['groupid' => $default['id']]);
-        return self::destroy($id);
+        $default = $this->getDefaultGroupUser($user['id']);
+        var_dump($default);
+        UserGroupMember::updateAll(['user_group_id' => $default['id']],['user_id' => $user['id'],'user_group_id' => $id])->getResult();
+        return UserGroup::deleteById($id);
     }
     /**
      * 获取用户第一个分组信息
      */
     public function getDefaultGroupUser($userId)
     {
-        return self::where('user_id' , $userId)->order('id','asc')->find();
+        return UserGroup::query()->where('user_id',$userId)->orderBy('id')->get()->getResult();
     }
 }
