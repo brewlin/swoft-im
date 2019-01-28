@@ -11,6 +11,8 @@
 namespace App\Exception;
 
 use App\Exception\Http\HttpExceptionHandler;
+use Composer\XdebugHandler\Status;
+use ServiceComponents\Enum\StatusEnum;
 use Swoft\App;
 use Swoft\Bean\Annotation\ExceptionHandler;
 use Swoft\Bean\Annotation\Handler;
@@ -22,6 +24,9 @@ use Swoft\Http\Message\Server\Response;
 use Swoft\Exception\BadMethodCallException;
 use Swoft\Exception\ValidatorException;
 use Swoft\Http\Server\Exception\BadRequestException;
+use Swoft\Rpc\Exception\RpcException;
+use Swoft\Rpc\Exception\RpcResponseException;
+use Swoft\Rpc\Exception\RpcStatusException;
 
 /**
  * the handler of global exception
@@ -59,6 +64,31 @@ class SwoftExceptionHandler
         $data = ['code' => $code,'msg' => $exception,'data' => $data,'statusCode' => $statusCode, 'file' => $file, 'line' => $line];
         App::error(json_encode($data));
         return $response->json($data);
+    }
+
+    /**
+     * @Handler(RpcStatusException::class)
+     * @param Response $response
+     * @param \Throwable $throwable
+     */
+    public function handlerRpcStatusException(Response $response,\Throwable $throwable)
+    {
+        $msg  = $throwable->getResponseMessage();
+        $status = $throwable->getStatus();
+        $data = $throwable->getData();
+        $returnData = ['code' => StatusEnum::Fail,'msg' => $msg,'data' => $data,'statusCode' => $status];
+        return $response->json($returnData);
+    }
+    /**
+     * @Handler(RRpcResponseException::class)
+     * @param Response $response
+     * @param \Throwable $throwable
+     */
+    public function handlerRpcResponseException(Response $response,\Throwable $throwable)
+    {
+        $data  = $throwable->getResponse();
+        $returnData = ['code' => StatusEnum::Fail,'msg' => '','data' => $data,'statusCode' => 10000];
+        return $response->json($returnData);
     }
     /**
      * @Handler(RuntimeException::class)
