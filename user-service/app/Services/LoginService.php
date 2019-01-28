@@ -12,7 +12,13 @@ namespace App\Services;
 use ServiceComponents\Rpc\Redis\UserCacheInterface;
 use ServiceComponents\Rpc\User\LoginServiceInterface;
 use Swoft\Rpc\Client\Bean\Annotation\Reference;
+use Swoft\Rpc\Server\Bean\Annotation\Service;
 
+/**
+ * @Service()
+ * Class LoginService
+ * @package App\Services
+ */
 class LoginService implements LoginServiceInterface
 {
     /**

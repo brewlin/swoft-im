@@ -63,7 +63,7 @@ class UserCacheService implements UserCacheInterface {
 			'sex' => $user['sex'],
 			'avatar' => $user['avatar'],
 			'sign' => $user['sign'],
-			'last_login' => $user['last_login'],
+			'last_login' => $user['lastLogin'],
 		];
 		$key = \config('cache.cacheName.token_user');
 		$key = sprintf($key, $token);

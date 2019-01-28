@@ -45,7 +45,7 @@ class LoginController extends BaseController
      */
     private $userGroupModel;
     /**
-     * @Reference("userService")
+     * @Reference("redisService")
      * @var LoginServiceInterface
      */
     private $loginService;
@@ -83,7 +83,9 @@ class LoginController extends BaseController
         $token = Common::getRandChar(16);
 
         // 将用户信息存入缓存
-        $this->loginService->saveCache($token,$user);
+//        $this->loginService->saveCache($token,$user);
+        $this->userCache->saveNumToToken($user['number'], $token);
+        $this->userCache->saveTokenToUser($token, $user);
 
         // 返回 token
         return Message::sucess($token);

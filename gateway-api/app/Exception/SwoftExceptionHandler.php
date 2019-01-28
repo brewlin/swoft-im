@@ -24,6 +24,7 @@ use Swoft\Http\Message\Server\Response;
 use Swoft\Exception\BadMethodCallException;
 use Swoft\Exception\ValidatorException;
 use Swoft\Http\Server\Exception\BadRequestException;
+use Swoft\Rpc\Client\Exception\RpcClientException;
 use Swoft\Rpc\Exception\RpcException;
 use Swoft\Rpc\Exception\RpcResponseException;
 use Swoft\Rpc\Exception\RpcStatusException;
@@ -67,6 +68,7 @@ class SwoftExceptionHandler
     }
 
     /**
+     * 捕获Rpc 返回状态失败(未设置服务降级 调试时使用的异常抓捕)
      * @Handler(RpcStatusException::class)
      * @param Response $response
      * @param \Throwable $throwable
@@ -80,7 +82,8 @@ class SwoftExceptionHandler
         return $response->json($returnData);
     }
     /**
-     * @Handler(RRpcResponseException::class)
+     * 捕获Rpc Response解析失败(未设置服务降级)
+     * @Handler(RpcResponseException::class)
      * @param Response $response
      * @param \Throwable $throwable
      */
@@ -88,6 +91,19 @@ class SwoftExceptionHandler
     {
         $data  = $throwable->getResponse();
         $returnData = ['code' => StatusEnum::Fail,'msg' => '','data' => $data,'statusCode' => 10000];
+        return $response->json($returnData);
+    }
+
+    /**
+     * 捕获Rpc Client 请求失败(未设置服务降级)
+     * @Handler(RpcClientException::class)
+     * @param Response $response
+     * @param \Throwable $throwable
+     */
+    public function handlerRpcClientException(Response $response,\Throwable $throwable)
+    {
+        $msg  = $throwable->getMessage();
+        $returnData = ['code' => StatusEnum::Fail,'msg' => $msg,'data' => '服务未开机','statusCode' => 10000];
         return $response->json($returnData);
     }
     /**
