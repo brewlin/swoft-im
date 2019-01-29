@@ -9,49 +9,46 @@
 namespace App\Models\Dao;
 
 
+use App\Models\Entity\Group;
+use App\Models\Entity\User;
+
 class GroupModelDao
 {
 
-    public function getSum($where){
-        return self::where($where)->count();
+    public function getSum($where)
+    {
+        return Group::count('*',$where)->getResult();
     }
 
     public function getGroup($where, $single = false){
-        if($single){
-            return self::where($where)->find();
-        }else{
-            return self::where($where)->select();
-        }
-
-    }
-    public function user()
-    {
-        return $this->belongsTo('User','user_number','number');
+        if($single)
+            return Group::findOne($where)->getResult();
+        else
+            return Group::findAll($where)->getResult();
     }
     public function getGroupOwnById($id,$key = null)
     {
-        $res = self::with('user')->where('id',$id)->find();
+        $res = Group::findOne(['id' => $id])->getResult();
+        $res['user'] = User::findOne(['id' => $res['userId']])->getResult();
         if($key)
             return $res['user'][$key];
         return $res;
     }
 
-    public function newGroup($data){
-        $model = new self();
-        $model->save($data);
-        return $model->id;
-    }
-    public function username()
+    public function newGroup($data)
     {
-        return $this->belongsTo('User','user_number','number')->bind('username');
+        $id =  Group::query()->insert($data)->getResult();
+        return $id;
     }
     public function getGroupOwner($id)
     {
-        return self::with('username')->find($id);
+        $res = Group::findById($id);
+        $res['username'] = User::findOne(['number' => $res['user_number']])->getResult();
+        return $res;
     }
     public function getNumberById($id)
     {
-        $res = self::get($id);
+        $res = Group::findById($id)->getResult();
         return $res['gnumber'];
     }
     /**
@@ -59,23 +56,14 @@ class GroupModelDao
      */
     public function searchGroup($value ,$page = null)
     {
-        if($page == null)
-        {
-            if(empty($value))
-                return self::select();
-            return self::whereOr('ginfo','like','%'.$value.'%')
-                ->whereOr('gname','like','%'.$value.'%')
-                ->whereOr('gnumber','like','%'.$value.'%')
-                ->whereOr('number','like','%'.$value.'%')
-                ->select();
-        }
-        if(empty($value))
-            return self::page($page)->select();
-        return self::whereOr('ginfo','like','%'.$value.'%')
-            ->whereOr('gname','like','%'.$value.'%')
-            ->whereOr('gnumber','like','%'.$value.'%')
-            ->whereOr('number','like','%'.$value.'%')
-            ->limit(16)->page($page)->select();
+        if(!$value)
+            return Group::findAll()->getResult();
+        return Group::query()
+            ->orWhere('ginfo','like','%'.$value.'%')
+            ->orWhere('gname','like','%'.$value.'%')
+            ->orWhere('gnumber','like','%'.$value.'%')
+            ->orWhere('number','like','%'.$value.'%')
+            ->get()->getResult();
     }
 
 }

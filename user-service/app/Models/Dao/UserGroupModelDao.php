@@ -7,6 +7,7 @@
  */
 
 namespace App\Models\Dao;
+use App\Models\Entity\GroupMember;
 use App\Models\Entity\UserGroup;
 use App\Models\Entity\UserGroupMember;
 use Swoft\Bean\Annotation\Bean;
@@ -24,16 +25,12 @@ class UserGroupModelDao
     }
     public function getAllFriends($id)
     {
-        UserGroupMember::findAll(['user_id' => $id]);
-        $res = UserGroup::query()->leftJoin('user_group_member','user_group.id=user_group_member.user_group_id')
-            ->where('user_group.user_id' , $id)->get(['user_group.*,user_group_member.remark_name'])->getResult();
-        var_dump($res);
-        /**
-        $res = self::where('user_id',$id)
-        ->with('list')
-        ->select()->toArray();
-         * **/
-        return $res;
+        $list = UserGroupMember::findAll(['user_id' => $id]);
+        foreach ($list as $k => $v)
+        {
+           $list[$k]['list'] = GroupMember::findAll(['groupId' => $v['id']])->getResult();
+        }
+        return $list;
     }
 
     /**

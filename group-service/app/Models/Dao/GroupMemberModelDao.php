@@ -18,13 +18,6 @@ use Swoft\Bean\Annotation\Bean;
  */
 class GroupMemberModelDao
 {
-    protected $hidden = ['id','creater_time'];
-
-    public function info()
-    {
-        return $this->belongsTo('Group','gnumber','gnumber');
-    }
-
     public function newGroupMember($data)
     {
         return GroupMember::query()->insert($data)->getResult();
@@ -32,8 +25,13 @@ class GroupMemberModelDao
 
     public function getGroups($where)
     {
-        return GroupMember::findAll($where)->getResult();
-//        return self::where($where)->with('info')->select();
+        $list = GroupMember::findAll($where)->getResult();
+        foreach ($list as $k => $v)
+        {
+           $list[$k]['info'] = Group::findOne(['number' => $v['group_number']])->getResult();
+
+        }
+        return $list;
     }
     public function getOneByWhere($where)
     {
@@ -42,10 +40,10 @@ class GroupMemberModelDao
     public function getGroupNames($where)
     {
         $res = [];
-        $list = self::where($where)->with('info')->select();
+        $list = GroupMember::findAll($where)->getResult();
         foreach ($list as $group)
         {
-            $res[] = $group['info'];
+            $res[] = Group::findOne(['number' => $group['group_number']])->getResult();
         }
         return $res;
 

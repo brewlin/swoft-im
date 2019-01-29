@@ -7,6 +7,9 @@
  */
 
 namespace App\Models\Dao;
+use App\Models\Entity\Group;
+use App\Models\Entity\GroupRecord;
+use App\Models\Entity\User;
 use Swoft\Bean\Annotation\Bean;
 
 /**
@@ -18,11 +21,7 @@ class GroupRecordModelDao
 {
     public function newRecord($data)
     {
-        $model = new self();
-        foreach ($data as $key=>$value){
-            $model->$key = $value;
-        }
-        $model->save();
+        GroupRecord::query()->insert($data)->getResult();
     }
     /**
      * @param $current 当前用户的id
@@ -31,12 +30,16 @@ class GroupRecordModelDao
      */
     public function getAllChatRecordById($uid , $id)
     {
-        $model = new self();
-        return $model->where('uid' , $uid)->where('gnumber' ,$id)
-            ->with('username')
-            ->with('avatar')
-            ->select(function($query){
-                $query->field(['uid' => 'id','created_time'=>'timestamp','data'=>'content']);
-            });
+        $recordList = GroupRecord::query()->where('uid',$uid)
+                            ->where('gnumber',$id)
+                            ->get(["uid as id","created_time as timestamp","data as content"])
+                            ->getResult();
+        foreach ($recordList as $k => $v)
+        {
+            $user = User::findOne(['number' => $v['userNumber']])->getResult();
+            $recordList[$k]['username'] = $user['username'];
+            $recordList[$k]['avatar'] = $user['avatar'];
+        }
+        return $recordList;
     }
 }

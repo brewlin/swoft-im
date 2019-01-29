@@ -17,14 +17,6 @@ use Swoft\Bean\Annotation\Bean;
  */
 class MsgModelDao
 {
-    public function to()
-    {
-        return $this->belongsTo("User","to");
-    }
-    public function from()
-    {
-        return $this->belongsTo("User","from");
-    }
     /**
      * 根据用户id获取消息
      */

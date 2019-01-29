@@ -7,6 +7,7 @@
  */
 
 namespace App\Models\Dao;
+use App\Models\Entity\User;
 use App\Models\Entity\UserRecord;
 use Swoft\Bean\Annotation\Bean;
 
@@ -52,28 +53,41 @@ class UserRecordModelDao
      */
     public function getAllChatRecordById($current , $toId)
     {
-        $model = new self();
-        return $model->where(function($query)use($current,$toId){
-            $query->where('uid',$current)->where('to_id',$toId);
-        })
-            ->whereOr(function($query)use($current , $toId){
-                $query->where('uid',$toId)->where('to_id',$current);
-            })
-            ->with('username')
-            ->with('avatar')
-            ->select(function($query){
-                $query->field(['uid' => 'id','created_time'=>'timestamp','data'=>'content']);
-            });
+        $recordList = UserRecord::query()
+            ->andWhere('uid',$current)
+            ->where('to_id',$toId)
+            ->closeWhere()
+            ->orWhere('uid',$toId)
+            ->where('to_id',$current)
+            ->closeWhere()
+            ->andWhere('group_number',$id)
+            ->get(["uid as id","created_time as timestamp","data as content"])
+            ->getResult();
+        foreach ($recordList as $k => $v)
+        {
+            $user = User::findOne(['number' => $v['userNumber']])->getResult();
+            $recordList[$k]['username'] = $user['username'];
+            $recordList[$k]['avatar'] = $user['avatar'];
+        }
+        return $recordList;
     }
     /**
      * 查看未读聊天记录
      */
     public function  getAllNoReadRecord($uid)
     {
-        $model = new self();
-        return $model->where(['to_id' => $uid,'is_read' => 0])
-            ->with('user')
-            ->with('touser')
-            ->select();
+        $list = UserRecord::query()
+            ->where('to_id',$uid)
+            ->where('is_read',0)
+            ->get()
+            ->getResult();
+        foreach ($list as $k => $v)
+        {
+            $user = User::findOne(['id' => $v['to']])->getResult();
+            $touser = User::findById($v['from'])->getResult();
+            $list[$k]['user'] = $user;
+            $list[$k]['touser'] = $touser;
+        }
+        return $list;
     }
 }
