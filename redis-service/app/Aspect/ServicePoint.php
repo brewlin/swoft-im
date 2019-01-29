@@ -34,7 +34,6 @@ class ServicePoint
     public function afterReturn(JoinPoint $joinPoint)
     {
         $result = $joinPoint->getReturn();
-        var_dump($result);
         if(is_null($result))
             return '';
         return $result;

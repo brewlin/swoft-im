@@ -7,7 +7,16 @@
  */
 
 namespace App\Models\Service;
+use App\Models\Dao\MsgModelDao;
+use App\Models\Dao\UserGroupMemberDao;
+use App\Models\Dao\UserModelDao;
+use App\Models\Entity\User;
+use ServiceComponents\Rpc\Msg\MsgServiceInterface;
+use ServiceComponents\Rpc\Redis\UserCacheInterface;
 use Swoft\Bean\Annotation\Bean;
+use Swoft\Bean\Annotation\Inject;
+use Swoft\Bean\Annotation\Value;
+use Swoft\Rpc\Client\Bean\Annotation\Reference;
 
 /**
  * Class MemberService
@@ -18,9 +27,9 @@ class MemberService
 {
     /**
      * @Reference("msgService")
-     * @var MsgModelInterface
+     * @var MsgServiceInterface
      */
-    private $msgModel;
+    private $msgService;
     /**
      * @Inject()
      * @var UserGroupMemberDao
@@ -36,6 +45,11 @@ class MemberService
      * @var UserCacheInterface
      */
     private $userCacheService;
+    /**
+     * @Inject()
+     * @var FriendService
+     */
+    private $friendService;
 
     public function getFriends($arr)
     {
@@ -69,7 +83,7 @@ class MemberService
         $this->userGroupMemberDao->newFriend($currentUid ,$data['friend_id'] ,$data['group_user_id']);
         //请求方添加好友
         //获取消息里的数据
-        $friend = $this->msgModel->getDataById($data['msg_id']);
+        $friend = $this->msgService->getDataById($data['msg_id']);
         $this->userGroupMemberDao->newFriend($friend['from'] , $friend['to'] ,$friend['group_user_id']);
     }
     public function friendInfo($where)
@@ -86,8 +100,8 @@ class MemberService
         $number      = $data['number'];
         $check       = $data['check'];
 
-        $from_user = FriendService::friendInfo(['number'=>$from_number]);
-        $user = FriendService::friendInfo(['number'=>$number]);
+        $from_user = $this->friendService->friendInfo(['number'=>$from_number]);
+        $user = $this->friendService->friendInfo(['number'=>$number]);
 
 
         if($from_user['online']){

@@ -31,4 +31,14 @@ class RpcDao
      */
     public $userCache;
 
+    /**
+     * Rpc 里无法使用Rpc客户端，所以采用折中的办法，单独一个bean储存Rpc连接池
+     * @param $function
+     * @param array ...$param
+     */
+    public function userCache($function ,...$param)
+    {
+        $this->userCache->$function(...$param);
+    }
+
 }

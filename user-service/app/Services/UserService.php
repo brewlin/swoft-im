@@ -101,9 +101,9 @@ class UserService implements UserServiceInterface
         // 生成 token
         $token = Common::getRandChar(16);
         // 将用户信息存入缓存
-        $this->rpcDao->userCache->saveNumToToken($user['number'], $token);
-        $this->rpcDao->userCache->saveTokenToUser(['user' => $user,'token' => $token], $user);
-        return Message::success($token,'登录成功');
+        $this->rpcDao->userCache('saveNumToToken',$user['number'], $token);
+        $this->rpcDao->userCache('saveTokenToUser',$token,$user);
+        return Message::success(['token' => $token,'user' => $user],'登录成功');
         // TODO: Implement login() method.
     }
     public function getUserByNumbers($memberList)

@@ -17,15 +17,15 @@ use Swoft\Sg\Circuit\CircuitBreaker;
 /**
  * the breaker of user-service
  *
- * @Breaker("user-service")
+ * @Breaker("redisService")
  */
-class UserBreaker extends CircuitBreaker
+class redisServiceBreaker extends CircuitBreaker
 {
     /**
      * The number of successive failures
      * If the arrival, the state switch to open
      *
-     * @Value(name="${config.breaker.user-service.failCount}", env="${USER_BREAKER_FAIL_COUNT}")
+     * @Value(name="${config.breaker.redis_service.failCount}")
      * @var int
      */
     protected $switchToFailCount = 3;
@@ -34,7 +34,7 @@ class UserBreaker extends CircuitBreaker
      * The number of successive successes
      * If the arrival, the state switch to close
      *
-     * @Value(name="${config.breaker.user-service.successCount}", env="${USER_BREAKER_SUCCESS_COUNT}")
+     * @Value(name="${config.breaker.redis_service.successCount}")
      * @var int
      */
     protected $switchToSuccessCount = 3;
@@ -43,7 +43,7 @@ class UserBreaker extends CircuitBreaker
      * Switch close to open delay time
      * The unit is milliseconds
      *
-     * @Value(name="${config.breaker.user-service.delayTime}", env="${USER_BREAKER_DELAY_TIME}")
+     * @Value(name="${config.breaker.redis_service.delayTime}")
      * @var int
      */
     protected $delaySwitchTimer = 500;
