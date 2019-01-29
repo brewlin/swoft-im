@@ -24,4 +24,20 @@ interface UserGroupMemberServiceInterface
      * 检查二人是否是好友关系
      */
     public function checkIsFriend($user1_id, $user2_id);
+    public function getAllFriends($id);
+
+    public function newFriend($uId, $friendId , $groupId );
+    /**
+     * 修改好友备注名
+     */
+    public function editFriendRemarkName($uid , $friendId , $remark);
+    /**
+     * 移动联系人
+     * @param $uid 自己的id
+     * @param $friendId 被移动的好友id
+     * @param $groupid 移动的目标分组id
+     */
+    public function moveFriend($uid , $friendId , $groupid);
+    public  function removeFriend($uid , $fiendId);
+
 }

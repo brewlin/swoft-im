@@ -9,9 +9,11 @@
 namespace App\Controllers\Api;
 
 
+use App\Exception\Http\RpcException;
 use ServiceComponents\Common\Message;
-use ServiceComponents\Rpc\User\UserGroupMemberModelInterface;
-use ServiceComponents\Rpc\User\UserModelInterface;
+use ServiceComponents\Enum\StatusEnum;
+use ServiceComponents\Rpc\User\UserGroupMemberServiceInterface;
+use ServiceComponents\Rpc\User\UserServiceInterface;
 use Swoft\Bean\Annotation\CachePut;
 use Swoft\Bean\Annotation\Strings;
 use Swoft\Bean\Annotation\ValidatorFrom;
@@ -30,14 +32,14 @@ class UserGroupMemberController extends BaseController
 {
     /**
      * @Reference("userService")
-     * @var UserGroupMemberModelInterface
+     * @var UserGroupMemberServiceInterface
      */
-    private $userGroupMemberModel;
+    private $userGroupMemberService;
     /**
      * @Reference("userService")
-     * @var UserModelInterface
+     * @var UserServiceInterface
      */
-    private $userModel;
+    private $userService;
     /**
      * 编辑好友备注名
      * @RequestMapping(route="friend/remark",method={RequestMethod::POST})
@@ -49,9 +51,9 @@ class UserGroupMemberController extends BaseController
     {
         $data = $request->input();
         $this->getCurrentUser();
-        $res = $this->userGroupMemberModel->editFriendRemarkName($this->user['id'] , $data['friend_id'] , $data['friend_name']);
+        $res = $this->userGroupMemberService->editFriendRemarkName($this->user['id'] , $data['friend_id'] , $data['friend_name']);
         if($res)
-            return Message::sucess($data['friend_name']);
+            return Message::success($data['friend_name']);
         return Message::error('','修改失败');
     }
     /**
@@ -65,12 +67,18 @@ class UserGroupMemberController extends BaseController
     {
         $data = $request->post();
         $this->getCurrentUser();
-        $res = $this->userGroupMemberModel->moveFriend($this->user['id'] , $data['friend_id'] , $data['groupid']);
+        $userGroupRes = $this->userGroupMemberService->moveFriend($this->user['id'] , $data['friend_id'] , $data['groupid']);
+        if($userGroupRes['code'] != StatusEnum::Success)
+            throw new RpcException();
+        $res = $userGroupRes['data'];
         if($res)
         {
             //返回好友信息
-            $user = $this->userModel->getUser(['id' => $data['friend_id']]);
-            return Message::sucess($user);
+            $userRes = $this->userService->getUserByCondition(['id' => $data['friend_id']]);
+            if($userRes['code'] != StatusEnum::Success)
+                throw new RpcException();
+            $user = $userRes['data'];
+            return Message::success($user);
         }
         return Message::error('','移动失败');
     }
@@ -84,9 +92,12 @@ class UserGroupMemberController extends BaseController
     {
         $data = $request->post();
         $this->getCurrentUser();
-        $res = $this->userGroupMemberModel->removeFriend($this->user['id'] , $data['friend_id']);
+        $userGroupRes = $this->userGroupMemberService->removeFriend($this->user['id'] , $data['friend_id']);
+        if($userGroupRes['code'] != StatusEnum::Success)
+            throw new RpcException();
+        $res = $userGroupRes['data'];
         if($res)
-            return Message::sucess('','删除成功');
+            return Message::success('','删除成功');
         return Message::error('','修改失败');
     }
     /**
@@ -96,8 +107,11 @@ class UserGroupMemberController extends BaseController
     public function getRecommendFriend()
     {
         //获取所有好友
-        $list = $this->userModel->getAllUser();
+        $userRes = $this->userService->getAllUser();
+        if($userRes['code'] != StatusEnum::Success)
+            throw new RpcException();
+        $list = $userRes['data'];
         //去除已经是本人的好友关系
-        return Message::sucess($list);
+        return Message::success($list);
     }
 }

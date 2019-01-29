@@ -8,7 +8,7 @@
 
 namespace App\Models\Service;
 use App\Models\Entity\User;
-use ServiceComponents\Rpc\Msg\MsgModelInterface;
+use ServiceComponents\Rpc\Msg\MsgServiceInterface;
 use ServiceComponents\Rpc\Redis\UserCacheInterface;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Rpc\Client\Bean\Annotation\Reference;
@@ -23,7 +23,7 @@ class FriendService
 {
     /**
      * @Reference("msgService")
-     * @var MsgModelInterface
+     * @var MsgServiceInterface
      */
     private $msgModel;
     /**

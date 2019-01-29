@@ -7,14 +7,20 @@
  */
 
 namespace App\Controllers\Api;
+use App\Exception\Http\RpcException;
 use ServiceComponents\Common\Message;
+use ServiceComponents\Enum\StatusEnum;
 use ServiceComponents\Enum\UserEnum;
 use ServiceComponents\Rpc\Group\GroupMemberModelInterface;
 use ServiceComponents\Rpc\Group\GroupModelInterface;
+use ServiceComponents\Rpc\Group\GroupServiceInterface;
 use ServiceComponents\Rpc\Redis\UserCacheInterface;
 use ServiceComponents\Rpc\User\UserGroupMemberServiceInterface;
 use ServiceComponents\Rpc\User\UserGroupModelInterface;
+use ServiceComponents\Rpc\User\UserGroupServiceInterface;
 use ServiceComponents\Rpc\User\UserModelInterface;
+use ServiceComponents\Rpc\User\UserServiceInterface;
+use Swoft\Bean\Annotation\Inject;
 use Swoft\Bean\Annotation\Strings;
 use Swoft\Bean\Annotation\ValidatorFrom;
 use Swoft\Http\Message\Server\Request;
@@ -31,35 +37,25 @@ use Swoft\Rpc\Client\Bean\Annotation\Reference;
 class UserController extends BaseController
 {
     /**
-     * @Reference("userService")
-     * @var UserModelInterface
-     */
-    private $userModel;
-    /**
      * @Reference("groupService")
-     * @var GroupModelInterface
+     * @var GroupServiceInterface
      */
-    private $groupModel;
+    private $groupService;
     /**
      * @Reference("redisService")
      * @var UserCacheInterface
      */
     private $userCacheService;
     /**
-     * @Reference("groupService")
-     * @var GroupMemberModelInterface
+     * @Reference("userService")
+     * @var UserServiceInterface
      */
-    private $groupMemberModel;
+    private $userService;
     /**
      * @Reference("userService")
-     * @var UserGroupModelInterface
+     * @var UserGroupServiceInterface
      */
-    private $userGroupModel;
-    /**
-     * @Reference("userService")
-     * @var UserGroupMemberServiceInterface
-     */
-    private $userGroupMemberService;
+    private $userGroupService;
     /**
      * 获取群信息 或者获取好友信息
      * @RequestMapping(route="friend/info")
@@ -69,21 +65,15 @@ class UserController extends BaseController
      */
     public function getInformation($request)
     {
-        //type friend 就获取好友信息 type为group则获取群信息
         $data = $request->input();
-        if($data['type'] == 'friend')
-        {
-            $info = $this->userModel->getUser(['id' => $data['id']]);
-            $info['type'] = 'friend';
-        }else if($data['type'] == 'group')
-        {
-            $info = $this->groupModel->getGroup(['id' => $data['id']] , true);
-            $info['type'] = 'group';
-        }else
-        {
-            return Message::error('','类型错误');
-        }
-        return Message::sucess($info);
+
+        //调用用户服务 获取基础信息
+        $userRes = $this->userService->getInformation($data['id'],$data['type']);
+        if($userRes['code'] != StatusEnum::Success)
+            throw new RpcException();
+
+        $info = $userRes['data'];
+        return Message::success($info);
 
     }
     /**
@@ -118,7 +108,9 @@ class UserController extends BaseController
         $this->userCacheService->delNumberUserOtherInfo($info['user']['number']);
         $this->userCacheService->delFdToken($fd);
         $this->userCacheService->delFds($fd);
-        $groups = $this->groupMemberModel->getGroups(['user_number'=>$info['user']['number']]);
+
+        //调用群组服务 获取群数量
+        $groups = $this->groupService->getGroupByCondition(['user_number'=>$info['user']['number']]);
         if($groups)
             foreach ($groups as $val)
                 $this->userCacheService->delGroupFd($val->gnumber, $fd);
@@ -127,10 +119,14 @@ class UserController extends BaseController
     /*
      * 给在线好友发送离线提醒
      */
-    private function offLine($user){
-        // 获取分组好友
-        $groups = $this->userGroupModel->getAllFriends($user['user']['id']);
-        $friends = $this->userGroupMemberService->getFriends($groups);
+    private function offLine($user)
+    {
+        // 从用户服务 获取分组好友
+        $userRes = $this->userGroupService->getUserGroupMember($user['id']);
+        if($userRes['code'] != StatusEnum::Success)
+            throw new RpcException(['msg' => '获取分组好友失败']);
+        $friends = $userRes['data'];
+
         $server = \Swoft::$server;
         $data = [
             'type'      => 'ws',
@@ -157,10 +153,16 @@ class UserController extends BaseController
     {
         $sign = request()->query('sign');
         $this->getCurrentUser();
-        $this->userModel->updateUser($this->user['id'] ,['sign' => $sign]);
-        $user = $this->userModel->getUser(['id' => $this->user['id']]);
+
+        //调用用户服务 更新签名
+        $userRes = $this->userService->updateUserByCondition(['sign' => $sign],['id' => $this->user['id']]);
+        if($userRes != StatusEnum::Success)
+            throw new RpcException();
+
+        //更新Redis缓存
+        $user = $this->userService->getUserByCondition(['id' => $this->user['id']]);
         $this->userCacheService->saveTokenToUser(request()->input('token') , $user);
-        return Message::sucess([],'成功');
+        return Message::success([],'成功');
     }
     /**
      * 查找好友 群
@@ -174,10 +176,21 @@ class UserController extends BaseController
         $value = request()->query('value');
         //搜索用户
         if($type == UserEnum::Friend)
-            $res = $this->userModel->searchUser($value);
+        {
+            $userRes = $this->userService->searchUser($value);
+            if($userRes['code'] != StatusEnum::Success)
+                throw new RpcException();
+            $res = $userRes['data'];
+        }
         else//搜索群组
-            $res = $this->groupModel->searchGroup($value);
-        return Message::sucess(['count' => count($res),'limit' => 16]);
+        {
+            //调用群组服务  搜索群组
+            $groupRes = $this->groupService->searchGroup($value);
+            if($groupRes['code'] != StatusEnum::Success)
+                throw new RpcException();
+            $res = $groupRes['data'];
+        }
+        return Message::success(['count' => count($res),'limit' => 16]);
     }
     /**
      * 查找好友 群 统计数量
@@ -193,12 +206,22 @@ class UserController extends BaseController
         $page = $request->query('page');
         $value = $request->query('value');
         if($type == UserEnum::Friend)
+        {
             //搜索用户
-            $res = $this->userModel->searchUser($value , $page);
+            $userRes = $this->userService->searchUser($value );
+            if($userRes['code'] != StatusEnum::Success)
+                throw new RpcException();
+            $res = $userRes['data'];
+        }
         else
+        {
             //搜索群组
-            $res = $this->groupModel->searchGroup($value , $page);
-        return Message::sucess($res);
+            $groupRes = $this->groupService->searchGroup($value);
+            if($groupRes['code'] != StatusEnum::Success)
+                throw new RpcException();
+            $res = $groupRes['data'];
+        }
+        return Message::success($res);
 
     }
 }

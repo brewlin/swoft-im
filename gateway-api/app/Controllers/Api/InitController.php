@@ -7,11 +7,15 @@
  */
 
 namespace App\Controllers\Api;
+use App\Exception\Http\RpcException;
 use ServiceComponents\Common\Message;
+use ServiceComponents\Enum\StatusEnum;
 use ServiceComponents\Rpc\Group\GroupMemberModelInterface;
+use ServiceComponents\Rpc\Group\GroupServiceInterface;
 use ServiceComponents\Rpc\Redis\UserCacheInterface;
 use ServiceComponents\Rpc\User\UserGroupMemberServiceInterface;
 use ServiceComponents\Rpc\User\UserGroupModelInterface;
+use ServiceComponents\Rpc\User\UserGroupServiceInterface;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
@@ -30,35 +34,38 @@ class InitController
      */
     private $userCache;
     /**
-     * @Reference("userService")
-     * @var UserGroupModelInterface
-     */
-    private $userGroupModel;
-    /**
-     * @Reference("userService")
-     * @var UserGroupMemberServiceInterface
-     */
-    private $userGroupMemberService;
-    /**
      * @Reference("groupService")
-     * @var GroupMemberModelInterface
+     * @var GroupServiceInterface
      */
-    private $groupMemberModel;
+    private $groupService;
+    /**
+     * @Reference("userService")
+     * @var UserGroupServiceInterface
+     */
+    private $userGroupServie;
     /**
      * @RequestMapping(route="init")
      * @param Request $request
      */
     public function initIm($request)
     {
-        //获取自己信息
+        //从缓存服务 获取自己信息
         $token = $request->input('token');
         $user = $this->userCache->getUserByToken($token);
         $user['status'] = 'online';
-        // 获取分组好友
-        $friends = $this->userGroupModel->getAllFriends($user['id']);
-        $data = $this->userGroupMemberService->getFriends($friends);
-        //获取群组信息
-        $groups = $this->groupMemberModel->getGroupNames(['user_number'=>$user['number'],'status' => 1]);
-        return Message::sucess(['mine' => $user ,'friend' => $data, 'group' => $groups?$groups:[]]);
+
+        // 从用户服务 获取分组好友
+        $userRes = $this->userGroupServie->getUserGroupMember($user['id']);
+        if($userRes['code'] != StatusEnum::Success)
+            throw new RpcException(['msg' => '获取分组好友失败']);
+        $data = $userRes['data'];
+
+        //从群组服务 获取群组信息
+        $groupRes = $this->groupService->getGroupListByNumber($user['number']);
+        if($userRes['code'] != StatusEnum::Success)
+            throw new RpcException(['msg' => '获取群组失败']);
+        $groups = $groupRes['data'];
+
+        return Message::success(['mine' => $user ,'friend' => $data, 'group' => $groups?$groups:[]]);
     }
 }

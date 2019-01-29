@@ -8,8 +8,8 @@
 
 namespace App\Models\Dao;
 use ServiceComponents\Rpc\Group\GroupModelInterface;
-use ServiceComponents\Rpc\Group\GroupServiceInterface;
 use ServiceComponents\Rpc\Redis\UserCacheInterface;
+use ServiceComponents\Rpc\User\UserServiceInterface;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Rpc\Client\Bean\Annotation\Reference;
 
@@ -21,10 +21,10 @@ use Swoft\Rpc\Client\Bean\Annotation\Reference;
 class RpcDao
 {
     /**
-     * @Reference("groupService")
-     * @var GroupServiceInterface
+     * @Reference("userService")
+     * @var UserServiceInterface
      */
-    public $groupService;
+    public $userService;
     /**
      * @Reference("redisService")
      * @var UserCacheInterface

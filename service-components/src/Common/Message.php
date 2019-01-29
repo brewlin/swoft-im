@@ -13,7 +13,7 @@ use ServiceComponents\Enum\StatusEnum;
 
 class Message
 {
-    public static function sucess($data = '', $msg = '', $code = StatusEnum::Success,$statusCode = StatusEnum::SuccessCode)
+    public static function success($data = '', $msg = '', $code = StatusEnum::Success, $statusCode = StatusEnum::SuccessCode)
     {
         $data = [
             "code" => $code,
@@ -32,12 +32,6 @@ class Message
             "statusCode" => $statusCode
         ];
         return $data;
-    }
-    public static function response($data)
-    {
-        if($data)
-            return $data;
-        return [];
     }
 
 }

@@ -58,6 +58,12 @@ class UserGroupModelDao
     {
         return UserGroup::updateOne(['group_name' => $groupname],['id' => $id])->getResult();
     }
+    public function updateByWhere($attr , $condition ,$single = true)
+    {
+        if($single)
+            return UserGroup::updateOne($attr,$condition)->getResult();
+        return UserGroup::updateAll($attr,$condition)->getResult();
+    }
     /**
      * 删除分组名
      * 检查下面是否有好友
@@ -71,7 +77,6 @@ class UserGroupModelDao
             return false;
         }
         $default = $this->getDefaultGroupUser($user['id']);
-        var_dump($default);
         UserGroupMember::updateAll(['user_group_id' => $default['id']],['user_id' => $user['id'],'user_group_id' => $id])->getResult();
         return UserGroup::deleteById($id);
     }

@@ -12,7 +12,7 @@ namespace ServiceComponents\Rpc\Msg;
  * Interface MsgModelInterface
  * @package ServiceComponents\Rpc\Msg
  */
-interface MsgModelInterface
+interface MsgServiceInterface
 {
     /**
      * 根据用户id获取消息

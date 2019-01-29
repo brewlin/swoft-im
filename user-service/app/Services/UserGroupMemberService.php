@@ -12,7 +12,9 @@ namespace App\Services;
 use App\Models\Dao\UserGroupMemberDao;
 use App\Models\Dao\UserModelDao;
 use App\Models\Entity\User;
-use ServiceComponents\Rpc\Msg\MsgModelInterface;
+use App\Models\Service\MemberService;
+use ServiceComponents\Common\Message;
+use ServiceComponents\Rpc\Msg\MsgServiceInterface;
 use ServiceComponents\Rpc\Redis\UserCacheInterface;
 use ServiceComponents\Rpc\User\UserGroupMemberServiceInterface;
 use Swoft\Bean\Annotation\Inject;
@@ -27,44 +29,19 @@ use Swoft\Rpc\Server\Bean\Annotation\Service;
 class UserGroupMemberService implements UserGroupMemberServiceInterface
 {
     /**
-     * @Reference("msgService")
-     * @var MsgModelInterface
+     * @Inject()
+     * @var MemberService
      */
-    private $msgModel;
+    private $memberService;
     /**
      * @Inject()
      * @var UserGroupMemberDao
      */
     private $userGroupMemberDao;
-    /**
-     * @Inject()
-     * @var UserModelDao;
-     */
-    private $userModelDao;
-    /**
-     * @Reference("redisService")
-     * @var UserCacheInterface
-     */
-    private $userCacheService;
+
     public function getFriends($arr)
     {
-        foreach ($arr as &$group)
-        {
-            foreach ($group['list'] as $k => &$friend)
-            {
-                //检查是否有昵称存在 有则替换当前的昵称
-                if(!empty($friend['remark_name']))
-                {
-                    $name = $friend['remark_name'];
-                    $group['list'][$k] = $this->friendInfo(['id' => $friend['friend_id']]);
-                    $group['list'][$k]['username'] = $name;
-                }else
-                {
-                    $group['list'][$k] = $this->friendInfo(['id' => $friend['friend_id']]);
-                }
-            }
-        }
-        return $arr;
+        return Message::success($this->memberService->getFriends($arr));
     }
 
     /**
@@ -74,51 +51,19 @@ class UserGroupMemberService implements UserGroupMemberServiceInterface
      */
     public function newFriends($data ,$currentUid)
     {
-        //添加自己的好友
-        $this->userGroupMemberDao->newFriend($currentUid ,$data['friend_id'] ,$data['group_user_id']);
-        //请求方添加好友
-        //获取消息里的数据
-        $friend = $this->msgModel->getDataById($data['msg_id']);
-        $this->userGroupMemberDao->newFriend($friend['from'] , $friend['to'] ,$friend['group_user_id']);
+        $this->memberService->newFriends($data,$currentUid);
+        return Message::success();
     }
     public function friendInfo($where)
     {
-        $user = User::findOne($where)->getResult();
-        $user['status']  = $this->userCacheService->getTokenByNum($user['number'])?'online':'offline';   // 是否在线
-        return $user;
+        return Message::success($this->memberService->friendInfo($where));
     }
 
     // 处理接收或拒绝添加好友的通知操作
     public function doReq($data)
     {
-        $from_number = $data['from_number'];
-        $number      = $data['number'];
-        $check       = $data['check'];
-
-        $from_user = FriendService::friendInfo(['number'=>$from_number]);
-        $user = FriendService::friendInfo(['number'=>$number]);
-
-
-        if($from_user['online']){
-            if($check){
-                $taskData = (new TaskHelper('sendMsg', UserCacheService::getFdByNum($from_number), 'newFriend', $user))
-                    ->getTaskData();
-            }else{
-                $taskData = (new TaskHelper('sendMsg', UserCacheService::getFdByNum($from_number), 'newFriendFail', $number.'('.$user["nickname"].')'.' 拒绝好友申请'))
-                    ->getTaskData();
-            }
-            $taskClass = new Task($taskData);
-            TaskManager::async($taskClass);
-        }
-
-        if($check){
-            if($user['online']){
-                $taskData = (new TaskHelper('sendMsg', UserCacheService::getFdByNum($number), 'newFriend', $from_user))
-                    ->getTaskData();
-                $taskClass = new Task($taskData);
-                TaskManager::async($taskClass);
-            }
-        }
+        $this->memberService->doReq($data);
+        return Message::success();
     }
 
     /*
@@ -126,10 +71,36 @@ class UserGroupMemberService implements UserGroupMemberServiceInterface
      */
     public  function checkIsFriend($user1_id, $user2_id)
     {
-        $ids = FriendModel::getAllFriends($user1_id);
-        if(in_array($user2_id, $ids)){
-            return true;
-        }
-        return false;
+        return Message::success($this->memberService->checkIsFriend($user1_id,$user2_id));
+    }
+    public function getAllFriends($id)
+    {
+        return Message::success($this->userGroupMemberDao->getAllFriends($id));
+    }
+
+    public function newFriend($uId, $friendId , $groupId )
+    {
+        return Message::success($this->userGroupMemberDao->newFriend($uId,$friendId,$groupId));
+    }
+    /**
+     * 修改好友备注名
+     */
+    public function editFriendRemarkName($uid , $friendId , $remark)
+    {
+        return Message::success($this->userGroupMemberDao->editFriendRemarkName($uid,$friendId,$remark));
+    }
+    /**
+     * 移动联系人
+     * @param $uid 自己的id
+     * @param $friendId 被移动的好友id
+     * @param $groupid 移动的目标分组id
+     */
+    public function moveFriend($uid , $friendId , $groupid)
+    {
+        return Message::success($this->userGroupMemberDao->moveFriend($uid,$friendId,$groupid));
+    }
+    public  function removeFriend($uid , $fiendId)
+    {
+        return Message::success($this->userGroupMemberDao->removeFriend($uid,$fiendId));
     }
 }

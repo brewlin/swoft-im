@@ -7,7 +7,7 @@
  */
 
 namespace App\Aspect;
-use App\Services\MsgModel;
+use App\Services\MsgService;
 use App\Services\UserCacheService;
 use Swoft\Aop\JoinPoint;
 use Swoft\Aop\ProceedingJoinPoint;

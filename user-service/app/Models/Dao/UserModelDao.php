@@ -30,6 +30,13 @@ class UserModelDao
         $result = $user->fill($data)->save()->getResult();
         return $result;
     }
+    public function updateByWhere($attr , $condition,$single = true)
+    {
+        if($single)
+            return User::updateOne($attr, $condition)->getResult();
+        return User::updateAll($attr,$condition)->getResult();
+
+    }
     public function updateUser($id,$data)
     {
         return User::updateOne($data, ['id' => $id])->getResult();

@@ -51,7 +51,7 @@ class ToolControoler
      */
     public function uploadImage()
     {
-        //获取群信息
+        //获取文件
         $file = request()->file('file');
         if(empty($file))
             return Message::error([],'缺少文件');
@@ -62,7 +62,7 @@ class ToolControoler
         $clientName = $file->getClientFilename();
         $src = $this->getFullPath($file,$type , $clientName);
         $file->moveTo($src);
-        return Message::sucess(compact('src'));
+        return Message::success(compact('src'));
     }
 
 }

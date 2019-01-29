@@ -10,12 +10,16 @@ namespace App\Controllers\Api;
 use App\Exception\Http\LoginException;
 use App\Exception\Http\ParameterException;
 use App\Exception\Http\RegisterException;
+use App\Services\UserService;
+use Composer\XdebugHandler\Status;
 use ServiceComponents\Common\Common;
 use ServiceComponents\Common\Message;
+use ServiceComponents\Enum\StatusEnum;
 use ServiceComponents\Rpc\Redis\UserCacheInterface;
 use ServiceComponents\Rpc\User\LoginServiceInterface;
 use ServiceComponents\Rpc\User\UserGroupModelInterface;
 use ServiceComponents\Rpc\User\UserModelInterface;
+use ServiceComponents\Rpc\User\UserServiceInterface;
 use Swoft\Bean\Annotation\Strings;
 use Swoft\Bean\Annotation\ValidatorFrom;
 use Swoft\Http\Server\Bean\Annotation\Controller;
@@ -33,20 +37,9 @@ class LoginController extends BaseController
      * @var UserCacheInterface
      */
     private $userCache;
-
     /**
      * @Reference("userService")
-     * @var UserModelInterface
-     */
-    private $userModel;
-    /**
-     * @Reference("userService")
-     * @var UserGroupModelInterface
-     */
-    private $userGroupModel;
-    /**
-     * @Reference("redisService")
-     * @var LoginServiceInterface
+     * @var UserServiceInterface
      */
     private $loginService;
 
@@ -61,34 +54,16 @@ class LoginController extends BaseController
     {
         $email = request()->post('email');
         $password = request()->post('password');
-
-        // 查询用户是否已经存在
-        $user = $this->userModel->getUser(['email' => $email]);
-        if (empty($user))
-            throw new LoginException(['msg' => '无效账号']);
-
-        $userFd = $this->userCache->getFdByNum($user['number']);
-        if ($userFd)
-            \Swoft::$server->push($userFd, json_encode(['type' => 'ws', 'method' => 'belogin', 'data' => 'logout']));
-
-        // 比较密码是否一致
-        if (strcmp(md5($password), $user['password']))
-            throw new LoginException(['msg' => '密码错误',]);
-
-        // 更新登录时间
-        $update = [ 'last_login' => time()];
-        $this->userModel->updateUser($user['id'], $update);
-
-        // 生成 token
-        $token = Common::getRandChar(16);
-
-        // 将用户信息存入缓存
-//        $this->loginService->saveCache($token,$user);
-        $this->userCache->saveNumToToken($user['number'], $token);
-        $this->userCache->saveTokenToUser($token, $user);
-
-        // 返回 token
-        return Message::sucess($token);
+        $logRes = $this->loginService->login($email,$password);
+        if($logRes['code'] == StatusEnum::Success)
+        {
+            $user = $logRes['data']['user'];
+            $userFd = $this->userCache->getFdByNum($user['number']);
+            if ($userFd)
+                \Swoft::$server->push($userFd, json_encode(['type' => 'ws', 'method' => 'belogin', 'data' => 'logout']));
+            return Message::success($logRes['data']['token'],$logRes['msg']);
+        }
+        return Message::error($logRes['data']['token'],$logRes['msg']);
     }
     /**
      * @RequestMapping(route="/register")
@@ -109,31 +84,10 @@ class LoginController extends BaseController
         // 判断两次密码是否输入一致
         if (strcmp($password, $repassword))
             throw new ParameterException(['msg' => '两次密码输入不一致']);
-
-        // 查询用户是否已经存在
-        $user = $this->userModel->getUser(['email' => $email]);
-        if (!empty($user))
-            throw new RegisterException(['msg' => '该用户已存在']);
-
-        // 生成唯一number
-        $number = Common::generate_code();
-        while ($this->userModel->getUser(['number' => $number])) {
-            $number = Common::generate_code();
-        }
-
-        // 入库
-        $data = [
-            'email' => $email,
-            'password' => md5($password),
-            'nickname' => $nickname,
-            'number' => $number,
-            'username' => $nickname
-        ];
-        $uid = $this->userModel->newUser($data);
-        $res = $this->userGroupModel->addGroup($uid,"我的好友");
-        if($res)
-            return Message::sucess();
-        return Message::error();
+        $regRes = $this->loginService->register($email,$nickname,$password);
+        if($regRes['code'] == StatusEnum::Success)
+            return Message::success('',$regRes['msg']);
+        return Message::error('',$regRes['msg']);
 
     }
 

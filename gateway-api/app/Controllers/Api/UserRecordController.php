@@ -41,7 +41,7 @@ class UserRecordController extends BaseController
     {
         $this->getCurrentUser();
         $res = $this->userRecordService->getAllChatRecordById($this->user['id'] , $request->query());
-        return Message::sucess($res);
+        return Message::success($res);
     }
 
     /**
@@ -59,6 +59,6 @@ class UserRecordController extends BaseController
         $data = ['is_read' => 1];
         $type = $request->post('type');
         $this->userRecordService->updateChatRecordIsRead($where,$data,$type);
-        return Message::sucess([],'收取消息成功');
+        return Message::success([],'收取消息成功');
     }
 }

@@ -11,7 +11,7 @@ namespace App\Services;
 
 use App\Models\Dao\MsgModelDao;
 use App\Models\Entity\Msg;
-use ServiceComponents\Rpc\Msg\MsgModelInterface;
+use ServiceComponents\Rpc\Msg\MsgServiceInterface;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Rpc\Server\Bean\Annotation\Service;
 
@@ -20,7 +20,7 @@ use Swoft\Rpc\Server\Bean\Annotation\Service;
  * @package App\Services
  * @Service()
  */
-class MsgModel implements MsgModelInterface
+class MsgService implements MsgServiceInterface
 {
     /**
      * @Inject()
