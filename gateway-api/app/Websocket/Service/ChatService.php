@@ -1,64 +1,26 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: yuzhang
- * Date: 2018/4/16
- * Time: 下午9:20
+ * User: xiaodo
+ * Date: 2018/9/13
+ * Time: 下午13:10
  */
 namespace App\Websocket\Service;
+use App\Exception\Http\SockException;
+use App\Models\Dao\RpcDao;
+use App\WebSocket\Common\TaskHelper;
+use ServiceComponents\Enum\StatusEnum;
+use Swoft\App;
+use Swoft\Task\Task;
+
 class ChatService
 {
-//    /*
-//     *  发送聊天消息
-//     *  异步，做标记是自己的还是对方发的
-//     */
-//    public function sendPersonalMsg($data){
-//        // 给自己发
-//        $myData = [
-//            'time'  => date("H:i:s", time()),
-//            'flag'  => 1,                       // 1自己的消息 ，2对方的消息
-//            'data'  => $data['data'],
-//            'number'=> $data['to']['user']['number']    // 跟谁聊
-//        ];
-//        $taskData = (new TaskHelper('sendMsg', $data['from']['fd'], 'chat', $myData))
-//            ->getTaskData();
-//        $taskClass = new Task($taskData);
-//        TaskManager::async($taskClass);
-//
-//        // 给对方发
-//        $toData = [
-//            'time'  => date("H:i:s", time()),
-//            'flag'  => 2,                       // 1自己的消息 ，2对方的消息
-//            'data'  => $data['data'],
-//            'number'=> $data['from']['user']['number']  // 哪来的
-//        ];
-//        $taskData = (new TaskHelper('sendMsg', $data['to']['fd'], 'chat', $toData))
-//            ->getTaskData();
-//        $taskClass = new Task($taskData);
-//        TaskManager::async($taskClass);
-//    }
     /*
      *  发送聊天消息
      *  异步，做标记是自己的还是对方发的
      */
-    public function sendPersonalMsg($data){
-//        // 给自己发
-//        $myData = [
-//            'username' => $data['to']['user']['username'],
-//            'avatar' => $data['to']['user']['avatar'],
-//            'id' => $data['to']['user']['id'],
-//            'type' => 'friend',//聊天类型，好友聊天
-//            'mine'  => true,                       // true自己的消息 ，false对方的消息
-//            'fromid' => $data['to']['user']['id'],
-//            'content'  => $data['data'],
-//            'timestamp' => time()*1000,
-//            'number'=> $data['to']['user']['number']    // 跟谁聊
-//        ];
-//        $taskData = (new TaskHelper('sendMsg', $data['from']['fd'], 'chat', $myData))
-//            ->getTaskData();
-//        $taskClass = new Task($taskData);
-//        TaskManager::async($taskClass);
-        // 给对方发
+    public function sendPersonalMsg($data)
+    {
         $toData = [
             'username' => $data['from']['user']['username'],
             'avatar' => $data['from']['user']['avatar'],
@@ -70,10 +32,9 @@ class ChatService
             'timestamp' => time()*1000,
             'number'=> $data['from']['user']['number'],  // 哪来的
         ];
-        $taskData = (new TaskHelper('sendMsg', $data['to']['fd'], 'chat', $toData))
-            ->getTaskData();
-        $taskClass = new Task($taskData);
-        TaskManager::async($taskClass);
+        //异步任务
+        $data = TaskHelper::getTaskData('chat',$toData,$data['to']['fd']);
+        Task::deliver('SyncTask','sendMsg',$data,Task::TYPE_ASYNC);
     }
     /**
      * 发送离线消息
@@ -97,18 +58,15 @@ class ChatService
             ];
             $fromData[] = $toData;
         }
-        $taskData = (new TaskHelper('sendOfflineMsg', $fd, 'chat', $fromData))
-            ->getTaskData();
-        $taskClass = new Task($taskData);
-        TaskManager::async($taskClass);
+        $data = TaskHelper::getTaskData('sendOfflineMsg',$fromData,$fd);
+        Task::deliver('SyncTask','sendOfflineMsg',$data,Task::TYPE_ASYNC);
     }
     /*
      * 存储消息记录
      */
-    public function savePersonalMsg($data){
+    public function savePersonalMsg($data)
+    {
         $taskData = [
-            'method' => 'saveMysql',
-            'data'  => [
                 'class'    => 'App\Model\ChatRecord',
                 'method'   => 'newRecord',
                 'data'     => [
@@ -117,10 +75,8 @@ class ChatService
                     'data'      => $data['data'],
                     'is_read' => $data['is_read']
                 ]
-            ]
         ];
-        $taskClass = new Task($taskData);
-        TaskManager::async($taskClass);
+        Task::deliver('SyncTask','saveMysql',$taskData,Task::TYPE_ASYNC);
     }
     /*
      * 发送群组聊天记录
@@ -136,8 +92,13 @@ class ChatService
             ,timestamp: 1467475443306 //服务端时间戳毫秒数。注意：如果你返回的是标准的 unix 时间戳，记得要 *1000
         }
      */
-    public function sendGroupMsg($data){
-        $group = Group::getGroup(['gnumber' => $data['gnumber']],true);
+    public function sendGroupMsg($data)
+    {
+        $rpcDao = App::getBean(RpcDao::class);
+        $groupRes = $rpcDao->groupService->getGroup(['gnumber' => $data['gnumber']],true);
+        if($groupRes != StatusEnum::Success)
+            throw new SockException();
+        $group = $groupRes['data'];
         $user = $data['user']['user'];
         $res = [
             'method'    => 'groupChat',
@@ -154,29 +115,28 @@ class ChatService
             ]
         ];
         $myfd = $data['user']['fd'];
-        $groupMembers  = GroupMember::getGroupMembers($data['gnumber']);
+
+        $groupRes = $rpcDao->groupService->getGroupMembers($data['gnumber']);
+        if($groupRes != StatusEnum::Success)
+            throw new SockException();
+       $groupMembers = $groupRes['data'];
         //待发送的fds
         $friendFds = [];
         foreach ($groupMembers as $v)
-            $friendFds[] = UserCacheService::getFdByNum($v);
+            $friendFds[] = $rpcDao->userCache->getFdByNum($v);
         //投递异步任务
         $taskData = [
-            'method' => 'sendGroupMsg',
-            'data'  => [
                 'fd' => $myfd,
                 'res' => $res,
                 'fds' => $friendFds
-                ]
             ];
-        $taskClass = new Task($taskData);
-        TaskManager::async($taskClass);
+        Task::deliver('SyncTask','sendGroupMsg',$taskData,Task::TYPE_ASYNC);
     }
 
     // 存储群组消息
-    public function saveGroupMsg($data){
+    public function saveGroupMsg($data)
+    {
         $taskData = [
-            'method' => 'saveMysql',
-            'data'  => [
                 'class'    => 'App\Model\GroupChatRecord',
                 'method'   => 'newRecord',
                 'data'     => [
@@ -184,10 +144,8 @@ class ChatService
                     'gnumber'   => $data['gnumber'],
                     'data'      => $data['data']
                 ]
-            ]
         ];
-        $taskClass = new Task($taskData);
-        TaskManager::async($taskClass);
+        Task::deliver('SyncTask','saveMysql',$taskData,Task::TYPE_ASYNC);
     }
 
 }

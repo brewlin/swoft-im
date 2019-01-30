@@ -11,6 +11,7 @@
 namespace App\Exception;
 
 use App\Exception\Http\HttpExceptionHandler;
+use App\Exception\Http\SockException;
 use Composer\XdebugHandler\Status;
 use ServiceComponents\Enum\StatusEnum;
 use Swoft\App;
@@ -67,6 +68,14 @@ class SwoftExceptionHandler
         return $response->json($data);
     }
 
+    /**
+     * @Handler(SockException::class)
+     * @param Response $response
+     * @param \Throwable $throwable
+     */
+    public function handlerSockException(Response $response,\Throwable $throwable)
+    {
+    }
     /**
      * 捕获Rpc 返回状态失败(未设置服务降级 调试时使用的异常抓捕)
      * @Handler(RpcStatusException::class)

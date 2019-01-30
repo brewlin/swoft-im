@@ -8,6 +8,9 @@
 
 namespace App\Websocket\Service;
 
+use App\Models\Dao\RpcDao;
+use Swoft\App;
+
 class UserService
 {
     const Friend = 'friend';
@@ -17,15 +20,16 @@ class UserService
      */
     public function keepUser()
     {
-        $serv = ServerManager::getInstance()->getServer();
-        $allUser = User::getAllUser(['status' => 1]);
+        $serv = \Swoft::$server;
+        $rpcDao = App::getBean(RpcDao::class);
+        $allUser = ($rpcDao->userService->getAllUser())['data'];
         foreach ($allUser as $k => $v)
         {
-            $fd = UserCacheService::getFdByNum($v['number']);
+            $fd = $rpcDao->userCache->getFdByNum($v['number']);
             if(!$serv->getClientInfo($fd))
             {
-                $token  = UserCacheService::getTokenByNum($v['number']);
-                $user   = UserCacheService::getUserByToken($token);
+                $token = $rpcDao->userCache->getTokenByNum($v['number']);
+                $user = $rpcDao->userCache->getUserByToken($token);
                 $info = ['user' => $user,'token' => $token];
                 $this->delUserToken($info);
             }
@@ -50,28 +54,34 @@ class UserService
     /*
     * 销毁个人/群组缓存
     */
-    private function delCache($info){
-        $fd = UserCacheService::getFdByNum($info['user']['number']);
-        UserCacheService::delTokenUser($info['token']);
-        UserCacheService::delNumberUserOtherInfo($info['user']['number']);
-        UserCacheService::delFdToken($fd);
-        UserCacheService::delFds($fd);
-        $groups = GroupMember::getGroups(['user_number'=>$info['user']['number']]);
-        if(!$groups->isEmpty()){
-            foreach ($groups as $val){
-                UserCacheService::delGroupFd($val->gnumber, $fd);
-            }
-        }
+    private function delCache($info)
+    {
+        $rpcDao = App::getBean(RpcDao::class);
+        $userCacheService = $rpcDao->userCache;
+        $groupService = $rpcDao->groupService;
+
+        $fd = $userCacheService->getFdByNum($info['user']['number']);
+        $userCacheService->delTokenUser($info['token']);
+        $userCacheService->delNumberUserOtherInfo($info['user']['number']);
+        $userCacheService->delFdToken($fd);
+        $userCacheService->delFds($fd);
+        $groupRes = $groupService->getGroup(['user_number'=>$info['user']['number']]);
+        $groups = $groupRes['data'];
+        if($groups)
+            foreach ($groups as $val)
+                $userCacheService->delGroupFd($val->gnumber, $fd);
     }
 
     /*
      * 给在线好友发送离线提醒
      */
-    private function offLine($user){
+    private function offLine($user)
+    {
+        $rpcDao = App::getBean(RpcDao::class);
         // 获取分组好友
-        $groups = GroupUser::getAllFriends($user['user']['id']);
-        $friends = GroupUserMemberService::getFriends($groups);
-        $server = ServerManager::getInstance()->getServer();
+        $userRes = $rpcDao->userGroupMemberService->getAllFriends($user['user']['id']);
+        $friends = $userRes['data'];
+        $server = \Swoft::$server;
         $data = [
             'type'      => 'ws',
             'method'    => 'friendOffLine',
@@ -80,13 +90,12 @@ class UserService
                 'nickname'  => $user['user']['nickname'],
             ]
         ];
-        foreach ($friends as $val) {
-            foreach ($val['list'] as $v){
-                if ($v['status']) {
-                    $fd = UserCacheService::getFdByNum($v['number']);
+        foreach ($friends as $val)
+            foreach ($val['list'] as $v)
+                if ($v['status'])
+                {
+                    $fd = $rpcDao->userCache->getFdByNum($v['number']);
                     $server->push($fd, json_encode($data));
                 }
-            }
-        }
     }
 }

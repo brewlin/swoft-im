@@ -1,21 +1,19 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: yuzhang
- * Date: 2018/4/18
- * Time: 下午8:09
+ * User: xiaodo
+ * Date: 20189/1/04
+ * Time: 下午11:34
  */
 
 namespace App\Websocket\Service;
 
 
-use App\Exception\Websocket\WsException;
-use App\Model\Group as GroupModel;
-use App\Model\GroupMember as GroupMemberModel;
-use App\Task\Task;
-use App\Task\TaskHelper;
-use EasySwoole\Core\Component\Logger;
-use EasySwoole\Core\Swoole\Task\TaskManager;
+
+use App\Models\Dao\RpcDao;
+use App\WebSocket\Common\TaskHelper;
+use Swoft\App;
+use Swoft\Task\Task;
 
 class GroupService
 {
@@ -28,10 +26,8 @@ class GroupService
             'type'          => 'group'
 
         ];
-        $taskData = (new TaskHelper('sendMsg', $user['fd'], 'newGroup', $data))
-            ->getTaskData();
-        $taskClass = new Task($taskData);
-        TaskManager::async($taskClass);
+        $taskData = TaskHelper::getTaskData('newGroup',$data,$user['fd']);
+        Task::deliver('SyncTask','sendMsg',$taskData,Task::TYPE_ASYNC);
     }
 
     /**
@@ -41,18 +37,18 @@ class GroupService
     public function doReq($fromNumber , $check ,$data)
     {
 
-        $from_user = FriendService::friendInfo(['number'=>$fromNumber]);
+        $from_user = (App::getBean(RpcDao::class)->userService->getUserByCondition(['number' => $fromNumber],true))['data'];
 
         if($from_user['online']){
-            if($check){
-                $taskData = (new TaskHelper('sendMsg', UserCacheService::getFdByNum($fromNumber), 'newGroup', $data))
-                    ->getTaskData();
-            }else{
-                $taskData = (new TaskHelper('sendMsg', UserCacheService::getFdByNum($fromNumber), 'newGroupFailMsg', '加群审核未通过'))
-                    ->getTaskData();
+            if($check)
+            {
+                $taskData = TaskHelper::getTaskData('newGroup',$data,App::getBean(RpcDao::class)->userCache->getFdByNum($fromNumber));
+                Task::deliver('SyncTask','sendMsg',$taskData,Task::TYPE_ASYNC);
+            }else
+            {
+                $taskData = TaskHelper::getTaskData('newGroupFailMsg','newGroupFailMsg', '加群审核未通过',App::getBean(RpcDao::class)->userCache->getFdByNum($fromNumber));
+                Task::deliver('SyncTask','sendMsg',$taskData,Task::TYPE_ASYNC);
             }
-            $taskClass = new Task($taskData);
-            TaskManager::async($taskClass);
         }
     }
 }

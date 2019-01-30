@@ -15,7 +15,7 @@ use Swoft\Task\Bean\Annotation\Task;
 /**
  * Sync task
  *
- * @Task("sync")
+ * @Task("SyncTask")
  */
 class SyncTask
 {
