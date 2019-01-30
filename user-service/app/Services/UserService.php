@@ -104,7 +104,6 @@ class UserService implements UserServiceInterface
         $this->rpcDao->userCache('saveNumToToken',$user['number'], $token);
         $this->rpcDao->userCache('saveTokenToUser',$token,$user);
         return Message::success(['token' => $token,'user' => $user],'登录成功');
-        // TODO: Implement login() method.
     }
     public function getUserByNumbers($memberList)
     {
@@ -131,9 +130,9 @@ class UserService implements UserServiceInterface
         }
         return Message::success($info);
     }
-    public function getUserByCondition($where)
+    public function getUserByCondition($where,$single = false)
     {
-        return Message::success($this->userModelDao->getUser($where));
+        return Message::success($this->userModelDao->getUser($where,$single));
     }
     public function updateUserByCondition($attr, $condition)
     {

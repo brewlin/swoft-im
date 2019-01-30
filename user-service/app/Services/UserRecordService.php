@@ -12,6 +12,8 @@ namespace App\Services;
 use App\Models\Dao\GroupRecordModelDao;
 use App\Models\Dao\RpcDao;
 use App\Models\Dao\UserRecordModelDao;
+use App\Models\Entity\Group;
+use ServiceComponents\Common\Message;
 use ServiceComponents\Rpc\User\UserRecordServiceInterface;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Rpc\Server\Bean\Annotation\Service;
@@ -76,9 +78,14 @@ class UserRecordService implements UserRecordServiceInterface
      */
     public function getGroupRecordById($uid , $data)
     {
-        $groupNumber = $this->rpcDao->groupModel->getNumberById($data['id']);
+        $group = Group::findOne(['id' => $data['id']])->getResult();
+        $groupNumber = $group['number'];
         $list = $this->groupRecordModelDao->getAllChatRecordById($uid , $groupNumber);
         return $list;
+    }
+    public function getAllNoReadRecord($uid)
+    {
+        return Message::success($this->userRecordModelDao->getAllNoReadRecord($uid));
     }
 
 }

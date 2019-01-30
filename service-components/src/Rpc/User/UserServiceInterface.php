@@ -50,7 +50,7 @@ interface UserServiceInterface
      * @param $where
      * @return mixed
      */
-    public function getUserByCondition($where);
+    public function getUserByCondition($where,$single = false);
 
     /**
      * 通过条件更新

@@ -33,4 +33,11 @@ interface UserRecordServiceInterface
      */
     public function getGroupRecordById($uid , $data);
 
+    /**
+     * 查看未读聊天记录
+     * @param $uid
+     * @return mixed
+     */
+    public function getAllNoReadRecord($uid);
+
 }

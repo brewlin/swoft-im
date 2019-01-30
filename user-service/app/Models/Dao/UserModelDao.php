@@ -20,9 +20,11 @@ use Swoft\Bean\Annotation\Bean;
  */
 class UserModelDao
 {
-    public function getUser($where)
+    public function getUser($where,$single = false)
     {
-        return User::findOne($where)->getResult();
+        if($single)
+            return User::findOne($where)->getResult();
+        return User::findAll($where)->getResult();
     }
     public function newUser($data)
     {

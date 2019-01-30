@@ -1,0 +1,101 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: yuzhang
+ * Date: 2018/4/15
+ * Time: 下午7:50
+ */
+
+namespace App\Websocket\Service;
+
+
+use App\Exception\Websocket\FriendException;
+use App\Model\GroupUserMember;
+use App\Model\MsgBox;
+use App\Model\User as UserModel;
+use App\Model\User;
+use App\Task\Task;
+use App\Task\TaskHelper;
+use EasySwoole\Core\Swoole\Task\TaskManager;
+use App\Model\Friend as FriendModel;
+
+class GroupUserMemberService
+{
+    public function getFriends($arr){
+        foreach ($arr as &$group){
+            foreach ($group['list'] as $k => &$friend)
+            {
+                //检查是否有昵称存在 有则替换当前的昵称
+                if(!empty($friend['remark_name']))
+                {
+                    $name = $friend['remark_name'];
+                    $group['list'][$k] = self::friendInfo(['id' => $friend['friend_id']]);
+                    $group['list'][$k]['username'] = $name;
+                }else
+                {
+                    $group['list'][$k] = self::friendInfo(['id' => $friend['friend_id']]);
+                }
+            }
+        }
+        return $arr;
+    }
+    public function newFriends($data ,$currentUid)
+    {
+        $userMember = new GroupUserMember();
+        //添加自己的好友
+        $userMember::newFriend($currentUid ,$data['friend_id'] ,$data['group_user_id']);
+        //请求方添加好友
+        //获取消息里的数据
+        $friend = MsgBox::getDataById($data['msg_id']);
+        $userMember::newFriend($friend['from'] , $friend['to'] ,$friend['group_user_id']);
+    }
+    public function friendInfo($where){
+        $user = UserModel::where($where)->find();
+        $user['status']  = UserCacheService::getTokenByNum($user['number'])?'online':'offline';   // 是否在线
+        return $user;
+    }
+
+    // 处理接收或拒绝添加好友的通知操作
+    public function doReq($data){
+        $from_number = $data['from_number'];
+        $number      = $data['number'];
+        $check       = $data['check'];
+
+        $from_user = FriendService::friendInfo(['number'=>$from_number]);
+        $user = FriendService::friendInfo(['number'=>$number]);
+
+
+        if($from_user['online']){
+            if($check){
+                $taskData = (new TaskHelper('sendMsg', UserCacheService::getFdByNum($from_number), 'newFriend', $user))
+                    ->getTaskData();
+            }else{
+                $taskData = (new TaskHelper('sendMsg', UserCacheService::getFdByNum($from_number), 'newFriendFail', $number.'('.$user["nickname"].')'.' 拒绝好友申请'))
+                    ->getTaskData();
+            }
+            $taskClass = new Task($taskData);
+            TaskManager::async($taskClass);
+        }
+
+        if($check){
+            if($user['online']){
+                $taskData = (new TaskHelper('sendMsg', UserCacheService::getFdByNum($number), 'newFriend', $from_user))
+                    ->getTaskData();
+                $taskClass = new Task($taskData);
+                TaskManager::async($taskClass);
+            }
+        }
+    }
+
+    /*
+     * 检查二人是否是好友关系
+     */
+    public function checkIsFriend($user1_id, $user2_id){
+        $ids = FriendModel::getAllFriends($user1_id);
+        if(in_array($user2_id, $ids)){
+            return true;
+        }
+        return false;
+    }
+
+}

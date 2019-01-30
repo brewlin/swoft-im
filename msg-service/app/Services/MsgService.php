@@ -11,6 +11,7 @@ namespace App\Services;
 
 use App\Models\Dao\MsgModelDao;
 use App\Models\Entity\Msg;
+use ServiceComponents\Common\Message;
 use ServiceComponents\Rpc\Msg\MsgServiceInterface;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Rpc\Server\Bean\Annotation\Service;
@@ -32,29 +33,29 @@ class MsgService implements MsgServiceInterface
      */
     public function getDataByUserId($userId)
     {
-        return $this->msgModelDao->getDataByUserId($userId);
+        return Message::success($this->msgModelDao->getDataByUserId($userId));
     }
     /**
      * 添加信息
      */
     public function addMsgBox($data)
     {
-        return $this->msgModelDao->addMsgBox($data);
+        return Message::success($this->msgModelDao->addMsgBox($data));
     }
     public function getDataById($id)
     {
-        return $this->msgModelDao->getDataById($id);
+        return Message::success($this->msgModelDao->getDataById($id));
     }
     public function updateById($id , $where)
     {
-        return $this->msgModelDao->updateById($id,$where);
+        return Message::success($this->msgModelDao->updateById($id,$where));
     }
     public function updateByWhere($where ,$update)
     {
-        return $this->msgModelDao->updateByWhere($where,$update);
+        return Message::success($this->msgModelDao->updateByWhere($where,$update));
     }
     public function getOneByWhere($where)
     {
-        return $this->msgModelDao->getOneByWhere($where);
+        return Message::success($this->msgModelDao->getOneByWhere($where));
     }
 }

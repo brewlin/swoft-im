@@ -33,5 +33,20 @@ class Message
         ];
         return $data;
     }
+    public static function sockData($attr = [])
+    {
+        $data = [
+            'type'=>'ws',
+            'method'=> 'ok',
+            'data' => 'ok',
+        ];
+        if(array_key_exists('type',$attr))
+            $data['type'] = $attr['type'];
+        if(array_key_exists('method',$attr))
+            $data['method'] = $attr['method'];
+        if(array_key_exists('data',$attr))
+            $data['data'] = $attr['data'];
+        return json_encode($data);
+    }
 
 }
