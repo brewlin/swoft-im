@@ -104,7 +104,7 @@ class OnOpen extends BaseWs
     private function sendOnlineMsg($user)
     {
         // 获取分组好友
-        $groupRes = $this->rpcDao->userGroupMemberService('getAllFriends',$user['user']['id']);
+        $groupRes = $this->rpcDao->userGroupService('getUserGroupMember',$user['user']['id']);
         if($groupRes['code'] != StatusEnum::Success)
             throw new SockException(['msg' => '获取好友数据失败']);
         $friends = $groupRes['data'];
