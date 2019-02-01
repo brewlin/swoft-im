@@ -63,7 +63,7 @@ interface GroupServiceInterface
      * @param $where
      * @return mixed
      */
-    public function getGroupMemberByCondition($where);
+    public function getGroupMemberByCondition($where,$single = false);
 
     /**
      * 搜索群组
@@ -71,4 +71,19 @@ interface GroupServiceInterface
      * @return mixed
      */
     public function searchGroup($value);
+
+    /**
+     * 获取群主信息
+     * @param $id
+     * @param null $key
+     * @return mixed
+     */
+    public function getGroupOwnById($id,$key = null);
+
+    /**
+     * 添加群成员
+     * @param $data
+     * @return mixed
+     */
+    public function newGroupMember($data);
 }

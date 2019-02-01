@@ -77,14 +77,14 @@ class UserRecordModelDao
     public function  getAllNoReadRecord($uid)
     {
         $list = UserRecord::query()
-            ->where('to_id',$uid)
+            ->where('user_id',$uid)
             ->where('is_read',0)
             ->get()
             ->getResult();
         foreach ($list as $k => $v)
         {
-            $user = User::findOne(['id' => $v['to']])->getResult();
-            $touser = User::findById($v['from'])->getResult();
+            $user = User::findOne(['id' => $v['userId']])->getResult();
+            $touser = User::findById($v['friendId'])->getResult();
             $list[$k]['user'] = $user;
             $list[$k]['touser'] = $touser;
         }

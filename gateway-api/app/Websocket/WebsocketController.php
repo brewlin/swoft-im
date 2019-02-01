@@ -82,6 +82,16 @@ class WebsocketController implements HandlerInterface
                     $data = $e->data;
                 if(property_exists($e,'statusCode'))
                     $statusCode = $e->statusCode;
+                /**
+                 * 抓捕Rpc调用服务 返回的异常信息 swoft封装抛出
+                 * 调试使用
+                 * */
+                if(method_exists($e,'getResponse'))
+                {
+                    $reponse = $e->getResponse();
+                    $exception = $reponse['msg'];
+                    var_dump($reponse);
+                }
 
                 $data = ['code' => $code,'msg' => $exception,'data' => $data,'statusCode' => $statusCode, 'file' => $file, 'line' => $line];
                 App::error(json_encode($data));

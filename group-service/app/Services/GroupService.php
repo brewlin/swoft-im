@@ -109,12 +109,23 @@ class GroupService implements GroupServiceInterface
     {
         return Message::success($this->groupModelDao->getGroup($where,$single));
     }
-    public function getGroupMemberByCondition($where)
+    public function getGroupMemberByCondition($where,$single = false)
     {
+        if($single)
+            return Message::success($this->groupMemberModelDao->getOneByWhere($where));
         return Message::success($this->groupMemberModelDao->getGroups($where));
     }
     public function searchGroup($value)
     {
         return Message::success($this->groupModelDao->searchGroup($value));
+    }
+    public function getGroupOwnById($id, $key = null)
+    {
+        return Message::success($this->groupModelDao->getGroupOwnById($id,$key));
+    }
+    public function newGroupMember($data)
+    {
+        return Message::success($this->groupMemberModelDao->newGroupMember($data));
+
     }
 }

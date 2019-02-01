@@ -33,7 +33,6 @@ class OnOpen extends BaseWs
 
         //判断是否有其他地方已登陆
         $userFd = $this->rpcDao->userCache('getFdByNum',$user['user']['number']);
-        var_dump($userFd);
         if($userFd != (int)$user['fd'])
         {
             $this->push($userFd , ['type'=>'ws','method'=> 'belogin','data'=> 'logout']);
@@ -52,8 +51,7 @@ class OnOpen extends BaseWs
     }
     public function push($fd,$data)
     {
-        $server = \Swoft::$server;
-
+        $server = \Swoft::$server->getServer();
         if($fd)
             if($server->getClientInfo($fd))
                 $server->push($fd,json_encode($data));
@@ -65,7 +63,7 @@ class OnOpen extends BaseWs
      */
     public function checkOfflineRecord($self)
     {
-        $record = $this->rpcDao->userRecordService->getAllNoReadRecord($self['user']['id']);
+        $record = $this->rpcDao->userRecordService('getAllNoReadRecord',$self['user']['id']);
         if($record['code'] != StatusEnum::Success)
             throw new SockException(['msg' => '湖区聊天消息失败']);
 
@@ -88,7 +86,7 @@ class OnOpen extends BaseWs
         $this->rpcDao->userCache('saveTokenByFd',$user['fd'], $user['token']);
 
         // 查找用户所在所有组，初始化组缓存
-        $groupRes = $this->rpcDao->groupService('getGroup',['user_number' => $user['user']['number']]);
+        $groupRes = $this->rpcDao->groupService('getGroup',['user_id' => $user['user']['id']]);
         if($groupRes['code'] != StatusEnum::Success)
             throw new SockException(['msg' => '获取群数据失败']);
         $groups = $groupRes['data'];

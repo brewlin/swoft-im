@@ -11,8 +11,14 @@ use App\Models\Dao\RpcDao;
 use App\WebSocket\Common\TaskHelper;
 use ServiceComponents\Enum\StatusEnum;
 use Swoft\App;
+use Swoft\Bean\Annotation\Bean;
 use Swoft\Task\Task;
 
+/**
+ * Class ChatService
+ * @package App\Websocket\Service
+ * @Bean()
+ */
 class ChatService
 {
     /*

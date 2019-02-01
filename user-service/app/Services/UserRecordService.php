@@ -27,6 +27,7 @@ class UserRecordService implements UserRecordServiceInterface
 {
 
     /**
+     * @Inject()
      * @var UserRecordModelDao
      */
     private $userRecordModelDao;

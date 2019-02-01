@@ -8,10 +8,12 @@
 namespace App\Websocket\Controller;
 
 use App\Exception\Http\SockException;
+use App\Websocket\Enum\MsgBoxEnum;
 use App\Websocket\Service\GroupService;
 use ServiceComponents\Common\Common;
 use ServiceComponents\Enum\StatusEnum;
 use Swoft\App;
+use Swoft\Task\Task;
 
 class Group extends BaseWs
 {
@@ -75,35 +77,29 @@ class Group extends BaseWs
      * 3. 写入数据库，存缓存
      * 4. 发送群组信息
      */
-    public function sendJoinGroupReq(){
-        $content = $this->request()->getArg('content');
+    public function sendJoinGroupReq()
+    {
+        $content = $this->content;
         $user = $this->getUserInfo();
         $id = $content['id'];
         $gnumber = $content['gnumber'];
 
         //查询群组是否存在
-        $res = GroupModel::getGroup(['gnumber'=>$gnumber], true);
-        if(!$res){
-            $msg = [
-                'type'=>'ws',
-                'method'=> 'ok',
-                'data' => '群组不存在',
-            ];
-            $this->response()->write(json_encode($msg));
-            return;
-        }
+        $groupRes = $this->rpcDao->groupService('getGroup',['gnumber'=>$gnumber], true);
+        if($groupRes['code'] != StatusEnum::Success)
+            throw new SockException(['msg' => '调用服务失败']);
+        $res = $groupRes['data'];
+        if(!$res)
+            throw new SockException(['msg' => '群组不存在']);
 
         // 查询是否在群组中
-        $is_in = GroupMemberModel::getGroups(['user_number'=>$user['user']['number'], 'gnumber'=>$gnumber]);
-        if(!$is_in->isEmpty()){
-            $msg = [
-                'type'=>'ws',
-                'method'=> 'ok',
-                'data' => '您已在此群组中',
-            ];
-            $this->response()->write(json_encode($msg));
-            return;
-        }
+        $groupRes = $this->rpcDao->groupService('getGroupMemberByCondition',['user_number'=>$user['user']['number'], 'gnumber'=>$gnumber]);
+        if($groupRes['code'] != StatusEnum::Success)
+            throw new SockException(['msg' => '调用服务失败']);
+
+        $is_in = $groupRes['data'];
+        if(!$is_in)
+            throw new SockException(['msg' =>'不在此群中']);
 
         // 准备发送请求的数据
         $data = [
@@ -113,7 +109,11 @@ class Group extends BaseWs
             ]
         ];
         //获取群主
-        $toUser = \App\Model\Group::getGroupOwnById($id);
+        $groupRes = $this->rpcDao->groupService('getGroupOwnById',$id);
+        if($groupRes['code'] != StatusEnum::Success)
+            throw new SockException(['msg' => '调用服务失败']);
+
+        $toUser = $groupRes['data'];
         $toId = $toUser['user']['id'];
         //写入msgbox记录
         $msgBox = [
@@ -124,22 +124,21 @@ class Group extends BaseWs
             'remark' => $content['remark'],
             'group_user_id' => $id,
         ];
-        $msgId = MsgBox::addMsgBox($msgBox);
+        $msgRes = $this->rpcDao->msgService('addMsgBox',$msgBox);
+        if($msgBox['code'] != StatusEnum::Success)
+            throw new SockException(['调用服务失败']);
+        $msgId = $msgRes['data'];
         $data['data']['from']['msg_id'] = $msgId;
         $data['data']['from']['gnumber'] = $gnumber;
         $data['data']['from']['gid'] = $id;
 
         // 异步加群要求
-        $fd = UserCacheService::getFdByNum($toUser['user']['number']);
+        $fd = $this->rpcDao->userCache('getFdByNum',$toUser['user']['number']);
         $taskData = [
-            'method' => 'sendMsg',
-            'data'  => [
                 'fd'        => $fd,
                 'data'      => $data
-            ]
         ];
-        $taskClass = new Task($taskData);
-        TaskManager::async($taskClass);
+        Task::deliver('SyncTask','sendMsg',$taskData,Task::TYPE_ASYNC);
         $this->sendMsg(['data'=>'加群请求已发送！']);
 
     }
@@ -148,13 +147,16 @@ class Group extends BaseWs
      */
     public function doJoinGroupReq()
     {
-        $content = $this->request()->getArg('content');
+        $content = $this->content;
+
         //申请人的信息
-        $fromUser = User::getUserById($content['from_id']);
+        $userRes = $this->rpcDao->userService('getUserByCondition',['id' => $content['from_id']],true);
+        $fromUser = $userRes['data'];
         $check = $content['check'];
         $user = $this->getUserInfo();
         $gid = $content['gid'];
-        $groupInfo = \App\Model\Group::getGroup(['id' => $gid],true);
+        $groupRes = $this->rpcDao->groupService('getGroup',['id' => $gid],true);
+        $groupInfo = $groupRes['data'];
         $gnumber = $groupInfo['gnumber'];
 
         // 若同意，
@@ -164,23 +166,19 @@ class Group extends BaseWs
         //若不同意，在线则发消息通知
         if($check)
         {
-            MsgBoxServer::updateStatus($content,$user['user']['id']);
+            $this->rpcDao->msgService('updateById',$content['msg_id'],['type' => $content['msg_type'] ,'status' => $content['status'] ,'read_time' => time()]);
+
             //判断此人是否在群里
-            if(GroupMember::getOneByWhere(['gnumber' => $gnumber,'user_number' => $fromUser['number']]))
-            {
-                $msg = [
-                    'type'=>'ws',
-                    'method'=> 'ok',
-                    'data' => '用户已在群中',
-                ];
-                $this->response()->write(json_encode($msg));
-                return;
-            }
-            GroupMember::newGroupMember(['gnumber' => $gnumber,'user_number' => $fromUser['number'],'status' => 1]);
+            $groupRes = $this->rpcDao->groupService->getGroupMemberByCondition(['gnumber' => $gnumber,'user_id' => $fromUser['id']],true);
+
+            if($groupRes['data'])
+                throw new SockException(['msg' => '用户已在此群中']);
+
+            $this->rpcDao->groupService('newGroupMember',['gnumber' => $gnumber,'user_number' => $fromUser['number'],'status' => 1]);
         }else
         {
             //更新为拒绝
-            MsgBox::updateById($content['msg_id'] , ['type' => $content['msg_type'] ,'status' => 4 ,'read_time' => time()]);
+            $this->rpcDao->msgService('updateById',$content['msg_id'] , ['type' => $content['msg_type'] ,'status' => 4 ,'read_time' => time()]);
         }
         // 异步通知双方
         $data  = [
@@ -191,19 +189,21 @@ class Group extends BaseWs
             'type'          => 'group'
 
         ];
-        GroupService::doReq($fromUser['number'],$check,$data);
-        $server = ServerManager::getInstance()->getServer();
-        $server->push(UserCacheService::getFdByNum($fromUser['number']) , json_encode(['type'=>'ws','method'=> 'ok','data'=> '加入群-'.$groupInfo['groupname'].'-成功!']));
+        App::getBean(GroupService::class)->doReq($fromUser['number'],$check,$data);
+        $server = \Swoft::$server;
+        $server->push($this->rpcDao->userCache('getFdByNum',$fromUser['number']) , json_encode(['type'=>'ws','method'=> 'ok','data'=> '加入群-'.$groupInfo['groupname'].'-成功!']));
         // 创建缓存
-        UserCacheService::setGroupFds($gnumber, $user['fd']);
+        $this->rpcDao->userCache('setGroupFds',$gnumber, $user['fd']);
 
     }
     /*
      * 群组列表
      */
-    public function getGroups(){
+    public function getGroups()
+    {
         $user = $this->getUserInfo();
-        $groups = GroupMemberModel::getGroups(['user_number'=>$user['user']['number']]);
+        $groupRes = $this->rpcDao->groupService('getGroupMemberByCondition',['user_id'=>$user['user']['id']]);
+        $groups = $groupRes['data'];
         $this->sendMsg(['method'=>'groupList','data'=>$groups]);
     }
 }

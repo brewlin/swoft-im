@@ -11,7 +11,13 @@ namespace App\Models\Dao;
 
 use App\Models\Entity\Group;
 use App\Models\Entity\User;
+use Swoft\Bean\Annotation\Bean;
 
+/**
+ * Class GroupModelDao
+ * @package App\Models\Dao
+ * @Bean()
+ */
 class GroupModelDao
 {
 
