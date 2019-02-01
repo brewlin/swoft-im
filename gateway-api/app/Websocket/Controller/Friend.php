@@ -132,6 +132,6 @@ class Friend extends BaseWs
         if($userRes['code'] != StatusEnum::Success)
             throw new SockException(['msg' => '调用获取好友服务失败']);
         $data = $userRes['data'];
-        $this->sendMsg(['method'=>'getFriends','data'=>$data]);
+        //$this->sendMsg(['method'=>'getFriends','data'=>$data]);
     }
 }

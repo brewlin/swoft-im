@@ -204,6 +204,6 @@ class Group extends BaseWs
         $user = $this->getUserInfo();
         $groupRes = $this->rpcDao->groupService('getGroupMemberByCondition',['user_id'=>$user['user']['id']]);
         $groups = $groupRes['data'];
-        $this->sendMsg(['method'=>'groupList','data'=>$groups]);
+       // $this->sendMsg(['method'=>'groupList','data'=>$groups]);
     }
 }

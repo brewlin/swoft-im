@@ -11,6 +11,8 @@ use App\Models\Entity\GroupMember;
 use App\Models\Entity\UserGroup;
 use App\Models\Entity\UserGroupMember;
 use Swoft\Bean\Annotation\Bean;
+use Swoft\Db\Collection;
+use Swoft\Db\DbDataResult;
 
 /**
  * Class UserGroupModelDao
@@ -25,10 +27,10 @@ class UserGroupModelDao
     }
     public function getAllFriends($id)
     {
-        $list = UserGroupMember::findAll(['user_id' => $id]);
-        foreach ($list as $k => $v)
+        $list = UserGroup::findAll(['user_id' => $id])->getResult()->toArray();
+        foreach ($list as $k => $v)//
         {
-           $list[$k]['list'] = GroupMember::findAll(['groupId' => $v['id']])->getResult();
+           $list[$k]['list'] = UserGroupMember::findAll(['user_group_id' => $v['id']])->getResult()->toArray();
         }
         return $list;
     }

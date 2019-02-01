@@ -45,7 +45,7 @@ class WebsocketController implements HandlerInterface
      */
     public function onOpen(Server $server, Request $request, int $fd)
     {
-        $server->push($fd, 'hello, welcome! :)');
+       // $server->push($fd, 'hello, welcome! :)');
     }
 
     /**

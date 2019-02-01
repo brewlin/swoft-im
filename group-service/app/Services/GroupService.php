@@ -43,9 +43,9 @@ class GroupService implements GroupServiceInterface
      * @var RpcDao
      */
     private $rpcDao;
-    public function getGroupListByNumber($number)
+    public function getGroupListByNumber($userId)
     {
-        return Message::success($this->groupMemberModelDao->getGroupNames(['user_number'=>$number,'status' => 1]));
+        return Message::success($this->groupMemberModelDao->getGroupNames(['user_id'=>$userId,'status' => 1]));
     }
 
     public function getGroupMembers($id)

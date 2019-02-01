@@ -16,10 +16,10 @@ interface GroupServiceInterface
 {
     /**
      * 根据用户number获取其所在群组
-     * @param $number
+     * @param $userId
      * @return mixed
      */
-    public function getGroupListByNumber($number);
+    public function getGroupListByNumber($userId);
 
     /**
      * 获取群成员

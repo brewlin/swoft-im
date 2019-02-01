@@ -55,17 +55,20 @@ class MemberService
     {
         foreach ($arr as &$group)
         {
+            $group['groupname'] = $group['groupName'];
+            unset($group['groupName']);
+            $group['online'] = 0;
             foreach ($group['list'] as $k => &$friend)
             {
                 //检查是否有昵称存在 有则替换当前的昵称
                 if(!empty($friend['remark_name']))
                 {
                     $name = $friend['remark_name'];
-                    $group['list'][$k] = $this->friendInfo(['id' => $friend['friend_id']]);
+                    $group['list'][$k] = $this->friendInfo(['id' => $friend['friendId']]);
                     $group['list'][$k]['username'] = $name;
                 }else
                 {
-                    $group['list'][$k] = $this->friendInfo(['id' => $friend['friend_id']]);
+                    $group['list'][$k] = $this->friendInfo(['id' => $friend['friendId']]);
                 }
             }
         }
@@ -88,8 +91,10 @@ class MemberService
     }
     public function friendInfo($where)
     {
-        $user = User::findOne($where)->getResult();
-        $user['status']  = $this->userCacheService->getTokenByNum($user['number'])?'online':'offline';   // 是否在线
+        $user = User::findOne($where)->getResult()->toArray();
+        $status  = $this->userCacheService->getTokenByNum($user['number']);
+        $user['status'] = $status?'online':'offline';   // 是否在线
+        $user['online'] = $status ? true : false;
         return $user;
     }
 

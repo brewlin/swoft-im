@@ -47,7 +47,7 @@ class OnOpen extends BaseWs
         //检查离线消息
         $this->checkOfflineRecord($user);
 
-        $this->sendMsg(['method'=>'initok','data'=>$user['user']]);
+        //$this->sendMsg(['method'=>'initok','data'=>$user['user']]);
     }
     public function push($fd,$data)
     {

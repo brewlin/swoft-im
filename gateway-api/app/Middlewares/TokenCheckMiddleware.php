@@ -40,23 +40,23 @@ class TokenCheckMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-//        $headerToken = null;
-//        if($request->getHeader('token'))
-//        {
-//            $headerToken = $request->getHeaderLine('token');
-//        }
-//        $requestToken = $request->input('token');
-//        if(!$headerToken && !$requestToken)
-//            return response()->json(['code' => 4,'data' => [],'msg' => '缺少token']);
-//
-//        if($headerToken || $requestToken)
-//        {
-//            $token = $headerToken?$headerToken:$requestToken;
-//            $user = $this->userCache->getUserByToken($token);
-//            if(!$user)
-//                 return response()->json(['code' => 4,'data' => [],'msg' => 'token非法']);
-//        }
+        $headerToken = null;
+        if($request->getHeader('token'))
+        {
+            $headerToken = $request->getHeaderLine('token');
+        }
+        $requestToken = $request->input('token');
+        if(!$headerToken && !$requestToken)
+            return response()->json(['code' => 4,'data' => [],'msg' => '缺少token']);
+
+        if($headerToken || $requestToken)
+        {
+            $token = $headerToken?$headerToken:$requestToken;
+            $user = $this->userCache->getUserByToken($token);
+            if(!$user)
+                 return response()->json(['code' => 4,'data' => [],'msg' => 'token非法']);
+        }
         $response = $handler->handle($request);;
-        return $response->withAddedHeader('Middleware-Token-Verify', 'success');
+        return $response->withHeader('Middleware-Token-Verify', 'success');
     }
 }
