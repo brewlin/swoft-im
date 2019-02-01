@@ -13,12 +13,6 @@ use ServiceComponents\Enum\StatusEnum;
 
 class HttpExceptionHandler extends \Exception
 {
-    // HTTP 状态码
-    public $code = StatusEnum::Fail;
-
-    // 错误信息
-    public $msg = '未知错误';
-
     // 自定义数据
     public $data = [];
 
@@ -27,13 +21,16 @@ class HttpExceptionHandler extends \Exception
 
     public function __construct($params = [])
     {
+        // HTTP 状态码
+        $this->code = StatusEnum::Fail;
+        $this->message =  '未知错误';
         if(!is_array($params)){
             return;
         }
         if(array_key_exists('code', $params))
             $this->code = $params['code'];
         if(array_key_exists('msg', $params))
-            $this->msg = $params['msg'];
+            $this->message = $params['msg'];
         if(array_key_exists('data', $params))
             $this->data = $params['data'];
         if(array_key_exists('statusCode', $params))

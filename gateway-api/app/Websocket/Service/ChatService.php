@@ -95,7 +95,7 @@ class ChatService
     public function sendGroupMsg($data)
     {
         $rpcDao = App::getBean(RpcDao::class);
-        $groupRes = $rpcDao->groupService->getGroup(['gnumber' => $data['gnumber']],true);
+        $groupRes = $rpcDao->groupService('getGroup',['gnumber' => $data['gnumber']],true);
         if($groupRes != StatusEnum::Success)
             throw new SockException();
         $group = $groupRes['data'];
@@ -116,14 +116,14 @@ class ChatService
         ];
         $myfd = $data['user']['fd'];
 
-        $groupRes = $rpcDao->groupService->getGroupMembers($data['gnumber']);
+        $groupRes = $rpcDao->groupService('getGroupMembers',$data['gnumber']);
         if($groupRes != StatusEnum::Success)
             throw new SockException();
        $groupMembers = $groupRes['data'];
         //待发送的fds
         $friendFds = [];
         foreach ($groupMembers as $v)
-            $friendFds[] = $rpcDao->userCache->getFdByNum($v);
+            $friendFds[] = $rpcDao->userCache('getFdByNum',$v);
         //投递异步任务
         $taskData = [
                 'fd' => $myfd,

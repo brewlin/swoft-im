@@ -5,7 +5,7 @@
  * Date: 2018/7/21
  */
 
-namespace App\WebsocketController;
+namespace App\Websocket\Controller;
 
 
 use App\Exception\Http\RpcException;
@@ -32,7 +32,7 @@ class Chat extends BaseWs
     {
         $content = $this->content;
         $user = $this->getUserInfo();
-        $userRes = $this->rpcDao->userService->getUserByCondition(['id' => $content['id']]);
+        $userRes = $this->rpcDao->userService('getUserByCondition',['id' => $content['id']]);
         if($userRes['code'] != StatusEnum::Success)
             throw new RpcException();
         $to_number = $userRes['number'];
@@ -86,7 +86,7 @@ class Chat extends BaseWs
         $gnumber = isset($content['gnumber'])?$content['gnumber']:"";
         $data =  Common::security($content['data']);
 
-        $is_in = $this->rpcDao->groupService->getGroupByCondition(['user_number'=>$user['user']['number'], 'gnumber'=>$gnumber]);
+        $is_in = $this->rpcDao->groupService('getGroupByCondition',['user_number'=>$user['user']['number'], 'gnumber'=>$gnumber]);
         if($is_in['code'] != StatusEnum::Success)
             throw new SockException(['msg' => '群服务信息调用失败']);
 

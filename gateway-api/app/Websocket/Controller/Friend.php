@@ -6,14 +6,16 @@
  * Time: 下午5:41
  */
 
-namespace App\WebsocketController;
+namespace App\Websocket\Controller;
 
 use App\Exception\Http\SockException;
+use App\WebSocket\Common\TaskHelper;
 use App\Websocket\Enum\MsgBoxEnum;
 use App\Websocket\Service\FriendService;
 use App\Websocket\Service\MsgBoxServer;
 use ServiceComponents\Enum\StatusEnum;
 use Swoft\App;
+use Swoft\Task\Task;
 
 class Friend extends BaseWs
 {
@@ -40,7 +42,7 @@ class Friend extends BaseWs
             throw new SockException(['msg' => '不可重复添加好友']);
 
         // 存储请求状态
-        $this->rpcDao->userCache->saveFriendReq($user['user']['number'], $toUser['user']['number']);
+        $this->rpcDao->userCache('saveFriendReq',$user['user']['number'], $toUser['user']['number']);
 
         // 准备发送请求的数据
         $data = [
@@ -59,24 +61,19 @@ class Friend extends BaseWs
             'group_user_id' => $content['group_user_id'],
         ];
         //调用消息存储服务
-        $msgRes = $this->rpcDao->msgService->addMsgBox($msgBox);
+        $msgRes = $this->rpcDao->msgService('addMsgBox',$msgBox);
         if($msgRes['code'] != StatusEnum::Success)
             throw new SockException(['消息存储失败']);
         $msgId = $msgRes['data'];
 
         $data['data']['from']['msg_id'] = $msgId;
         // 异步发送好友请求
-        $fd = $this->rpcDao->userCache->getFdByNum($toUser['user']['number']);
+        $fd = $this->rpcDao->userCache('getFdByNum',$toUser['user']['number']);
         $taskData = [
-            'method' => 'sendMsg',
-            'data'  => [
                 'fd'        => $fd,
                 'data'      => $data
-            ]
         ];
-        $taskClass = new Task($taskData);
-        TaskManager::async($taskClass);
-        $this->sendMsg(['data'=>'好友请求已发送！']);
+        Task::deliver('SyncTask','sendMsg',$taskData,Task::TYPE_ASYNC);
     }
 
     /*
@@ -87,7 +84,7 @@ class Friend extends BaseWs
     public function doReq()
     {
         $content = $this->content;
-        $userRes = $this->rpcDao->userService->getUserByCondition(['id' => $content['friend_id']],true);
+        $userRes = $this->rpcDao->userService('getUserByCondition',['id' => $content['friend_id']],true);
         if($userRes['code'] != StatusEnum::Success)
             throw new SockException(['msg' => '用户服务调用失败']);
         $fromUser = $userRes['data'];
@@ -95,7 +92,7 @@ class Friend extends BaseWs
         $user = $this->getUserInfo();
 
         // 缓存校验，删除缓存，成功表示有该缓存记录，失败则没有
-        $cache = $this->rpcDao->userCache->delFriendReq($fromUser['number']);
+        $cache = $this->rpcDao->userCache('delFriendReq',$fromUser['number']);
         if(!$cache)
             throw new SockException(['msg' => '好友请求失败']);
 
@@ -108,11 +105,11 @@ class Friend extends BaseWs
         if($check)
         {
             App::getBean(MsgBoxServer::class)->updateStatus($content,$user['user']['id']);
-            $this->rpcDao->userGroupMemberService->newFriends($content,$userRes['user']['id']);
+            $this->rpcDao->userGroupMemberService('newFriends',$content,$userRes['user']['id']);
         }else
         {
             //更新为拒绝
-            $this->rpcDao->msgService->updateById($content['msg_id'] , ['type' => $content['msg_type'] ,'status' => $content['status'] ,'read_time' => time()]);
+            $this->rpcDao->msgService('updateById',$content['msg_id'] , ['type' => $content['msg_type'] ,'status' => $content['status'] ,'read_time' => time()]);
         }
 
         // 异步通知双方
@@ -131,7 +128,7 @@ class Friend extends BaseWs
     public function getFriends()
     {
         $user = $this->getUserInfo();
-        $userRes = $this->rpcDao->userGroupService->getAllFriends($user['user']['id']);
+        $userRes = $this->rpcDao->userGroupService('getAllFriends',$user['user']['id']);
         if($userRes['code'] != StatusEnum::Success)
             throw new SockException(['msg' => '调用获取好友服务失败']);
         $data = $userRes['data'];

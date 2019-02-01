@@ -23,6 +23,6 @@ class HttpServerListener implements WorkerStartInterface
 {
     public function onWorkerStart(Server $server, int $workerId, bool $isWorkerr)
     {
-        echo $workerId."is started \n";
+        //echo $workerId."is started \n";
     }
 }

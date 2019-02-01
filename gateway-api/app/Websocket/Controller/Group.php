@@ -5,7 +5,7 @@
  * Date: 2018/10/18
  */
 
-namespace App\WebsocketController;
+namespace App\Websocket\Controller;
 
 use App\Exception\Http\SockException;
 use App\Websocket\Service\GroupService;
@@ -34,7 +34,7 @@ class Group extends BaseWs
         if(empty($gname))
             throw new SockException(['msg' => '参数异常']);
 
-        $groupRes = $this->rpcDao->groupService->getGroup(['user_number'=>$user['user']['number']]);
+        $groupRes = $this->rpcDao->groupService('getGroup',['user_number'=>$user['user']['number']]);
         if($groupRes['code'] != StatusEnum::Success)
             throw new SockException(['调用群组服务失败']);
         $count = count($groupRes['data']);
@@ -51,12 +51,12 @@ class Group extends BaseWs
             'ginfo'         => $ginfo,
             'gname'         => $gname
         ];
-        $groupRes = $this->rpcDao->groupService->createGroup($group_data,$number,$user['user']['number']);
+        $groupRes = $this->rpcDao->groupService('createGroup',$group_data,$number,$user['user']['number']);
         if($groupRes['code'] != StatusEnum::Success)
             throw new SockException(['msg' => '创建群失败']);
         $gid = $groupRes['data'];
         // 创建缓存
-        $this->rpcDao->userCache->setGroupFds($number,$this->fd);
+        $this->rpcDao->userCache('setGroupFds',$number,$this->fd);
 
         // 异步通知
         $g_info = [

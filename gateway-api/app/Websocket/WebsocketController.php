@@ -2,7 +2,9 @@
 
 namespace App\WebSocket;
 
+use function PHPSTORM_META\type;
 use ServiceComponents\Common\Message;
+use Swoft\App;
 use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Message\Server\Response;
 use Swoft\WebSocket\Server\Bean\Annotation\WebSocket;
@@ -58,17 +60,32 @@ class WebsocketController implements HandlerInterface
     public function onMessage(Server $server, Frame $frame)
     {
         $data = $frame->data;
+        $data = json_decode($data,1);
         if(!$data)
-            $server->push($frame->fd,Message::sockData(['data' => '缺少数据']));
+            return $server->push($frame->fd,Message::sockData(['data' => '缺少数据']));
         //获取控制器
         $classname = 'App\\Websocket\\Controller\\'.$data['controller'];
+        $action = $data['action'];
         if (class_exists($classname))
             try
             {
-                (new $classname($data['content'],$frame->fd))->$data['action']();
+                (new $classname($data['content'],$frame->fd))->$action();
             }catch(\Throwable $e)
             {
-                $server->push($frame->fd,Message::sockData(['data' => '请求的方法不存在']));
+                $file      = $e->getFile();
+                $line      = $e->getLine();
+                $code      = $e->getCode();
+                $exception = $e->getMessage();
+                $data = [];
+                $statusCode = 10000;
+                if(property_exists($e,'data'))
+                    $data = $e->data;
+                if(property_exists($e,'statusCode'))
+                    $statusCode = $e->statusCode;
+
+                $data = ['code' => $code,'msg' => $exception,'data' => $data,'statusCode' => $statusCode, 'file' => $file, 'line' => $line];
+                App::error(json_encode($data));
+                $server->push($frame->fd,Message::sockData(['data' => $file.'--'.$line.'--'.$exception]));
             }
     }
 

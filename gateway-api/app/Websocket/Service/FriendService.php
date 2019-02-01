@@ -24,10 +24,10 @@ class FriendService
         $from_number = $data['from_number'];
         $number      = $data['number'];
         $check       = $data['check'];
-        $from_user = ($rpcDao->userService->getUserByCondition(['number'=>$from_number],true))['data'];
-        $user = ($rpcDao->userService->getUserByCondition(['number' => $number],true))['data'];
+        $from_user = ($rpcDao->userService('getUserByCondition',['number'=>$from_number],true))['data'];
+        $user = ($rpcDao->userService('getUserByCondition',['number' => $number],true))['data'];
         //获取好友请求方的分组
-        $msg = ($rpcDao->msgService->getDataById($data['msg_id']))['data'];
+        $msg = ($rpcDao->msgService('getDataById',$data['msg_id']))['data'];
         $user['groupid'] = $msg['group_user_id'];//好友所在分组
 
         if($from_user['online'])
@@ -51,7 +51,7 @@ class FriendService
     public function checkIsFriend($user1_id, $user2_id)
     {
         $rpcDao = App::getBean(RpcDao::class);
-        $ids = ($rpcDao->userGroupMemberService->getAllFriends($user1_id))['data'];
+        $ids = ($rpcDao->userGroupMemberService('getAllFriends',$user1_id))['data'];
         if(in_array($user2_id, $ids))
             return true;
         return false;

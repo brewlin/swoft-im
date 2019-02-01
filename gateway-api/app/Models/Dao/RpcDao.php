@@ -30,37 +30,37 @@ class RpcDao
      * @Reference("groupService")
      * @var GroupServiceInterface
      */
-    public $groupService;
+    private $groupService;
     /**
      * @Reference("redisService")
      * @var UserCacheInterface
      */
-    public $userCache;
+    private $userCache;
     /**
      * @Reference("userService")
      * @var UserServiceInterface
      */
-    public $userService;
+    private $userService;
     /**
      * @Reference("msgService")
      * @var MsgServiceInterface
      */
-    public $msgService;
+    private $msgService;
     /**
      * @Reference("userService")
      * @var UserGroupMemberServiceInterface
      */
-    public $userGroupMemberService;
+    private $userGroupMemberService;
     /**
      * @Reference("userService")
      * @var UserGroupServiceInterface
      */
-    public $userGroupService;
+    private $userGroupService;
     /**
      * @Reference("userService")
      * @var UserRecordServiceInterface
      */
-    public $userRecordService;
+    private $userRecordService;
     /**
      * Rpc 里无法使用Rpc客户端，所以采用折中的办法，单独一个bean储存Rpc连接池
      * @param $function
@@ -68,7 +68,31 @@ class RpcDao
      */
     public function userCache($function ,...$param)
     {
-        $this->userCache->$function(...$param);
+        return $this->userCache->$function(...$param);
+    }
+    public function userRecordService($function,...$param)
+    {
+        return $this->userRecordService->$function(...$param);
+    }
+    public function userGroupService($function,...$param)
+    {
+        return $this->userGroupService->$function(...$param);
+    }
+    public function userGroupMemberService($function ,...$param)
+    {
+        return $this->userGroupMemberService->$function(...$param);
+    }
+    public function msgService($function,...$param)
+    {
+        return $this->msgService->$function(...$param);
+    }
+    public function userService($function,...$param)
+    {
+        return $this->userService->$function(...$param);
+    }
+    public function groupService($function,...$param)
+    {
+        return $this->groupService->$function(...$param);
     }
 
 }

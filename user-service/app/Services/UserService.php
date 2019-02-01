@@ -86,7 +86,7 @@ class UserService implements UserServiceInterface
     public function login($email, $password)
     {
         // 查询用户是否已经存在
-        $user = $this->userModelDao->getUser(['email' => $email]);
+        $user = $this->userModelDao->getUser(['email' => $email],true);
         if (empty($user))
             throw new LoginException(['msg' => '无效账号']);
 

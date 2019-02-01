@@ -6,7 +6,7 @@
  * Time: 下午5:11
  */
 
-namespace App\WebsocketController;
+namespace App\Websocket\Controller;
 
 
 use App\Exception\Http\RpcException;
@@ -35,7 +35,7 @@ class BaseWs
         $token = $content['token'];
 
         //调用rpc服务
-        $this->rpcDao->userCache->getUserByToken($token);
+        $user = $this->rpcDao->userCache('getUserByToken',$token);
         if(empty($user))
             return false;
         $data = [
@@ -72,12 +72,12 @@ class BaseWs
      */
     protected function onlineValidate($toId)
     {
-        $ishas = $this->rpcDao->userService->getUserByCondition(['id' => $toId]);
+        $ishas = $this->rpcDao->userService('getUserByCondition',['id' => $toId]);
         if($ishas['code'] != StatusEnum::Success)
             throw new RpcException();
         if(!$ishas)
             throw new SockException();
-        $fd = $this->rpcDao->userCache->getFdByNum($ishas['number']);
+        $fd = $this->rpcDao->userCache('getFdByNum',$ishas['number']);
         if(!$fd)
             throw new SockException(['msg' =>'用户不在线，已发送离线消息']);
         $user = [

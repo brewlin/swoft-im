@@ -69,14 +69,6 @@ class SwoftExceptionHandler
     }
 
     /**
-     * @Handler(SockException::class)
-     * @param Response $response
-     * @param \Throwable $throwable
-     */
-    public function handlerSockException(Response $response,\Throwable $throwable)
-    {
-    }
-    /**
      * 捕获Rpc 返回状态失败(未设置服务降级 调试时使用的异常抓捕)
      * @Handler(RpcStatusException::class)
      * @param Response $response

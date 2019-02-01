@@ -37,7 +37,7 @@ class GroupService
     public function doReq($fromNumber , $check ,$data)
     {
 
-        $from_user = (App::getBean(RpcDao::class)->userService->getUserByCondition(['number' => $fromNumber],true))['data'];
+        $from_user = (App::getBean(RpcDao::class)->userService('getUserByCondition',['number' => $fromNumber],true))['data'];
 
         if($from_user['online']){
             if($check)
@@ -46,7 +46,7 @@ class GroupService
                 Task::deliver('SyncTask','sendMsg',$taskData,Task::TYPE_ASYNC);
             }else
             {
-                $taskData = TaskHelper::getTaskData('newGroupFailMsg','newGroupFailMsg', '加群审核未通过',App::getBean(RpcDao::class)->userCache->getFdByNum($fromNumber));
+                $taskData = TaskHelper::getTaskData('newGroupFailMsg','newGroupFailMsg', '加群审核未通过',App::getBean(RpcDao::class)->userCache('getFdByNum',$fromNumber));
                 Task::deliver('SyncTask','sendMsg',$taskData,Task::TYPE_ASYNC);
             }
         }

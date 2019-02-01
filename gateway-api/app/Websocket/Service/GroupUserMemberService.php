@@ -40,17 +40,17 @@ class GroupUserMemberService
     {
         //添加自己的好友
         $rpcDao = App::getBean(RpcDao::class);
-        $rpcDao->userGroupMemberService->newFriend($currentUid ,$data['friend_id'] ,$data['group_user_id']);
+        $rpcDao->userGroupMemberService('newFriend',$currentUid ,$data['friend_id'] ,$data['group_user_id']);
         //请求方添加好友
         //获取消息里的数据
-        $friend = ($rpcDao->msgService->getDataById($data['msg_id']))['data'];
-        $rpcDao->userGroupMemberService->newFriend($friend['from'] , $friend['to'] ,$friend['group_user_id']);
+        $friend = ($rpcDao->msgService('getDataById',$data['msg_id']))['data'];
+        $rpcDao->userGroupMemberService('newFriend',$friend['from'] , $friend['to'] ,$friend['group_user_id']);
     }
     public function friendInfo($where)
     {
         $rpcDao = App::getBean(RpcDao::class);
-        $user = ($rpcDao->userService->getUserByCondition($where,true))['data'];
-        $user['status']  = $rpcDao->userCache->getTokenByNum($user['number'])?'online':'offline';   // 是否在线
+        $user = ($rpcDao->userService('getUserByCondition',$where,true))['data'];
+        $user['status']  = $rpcDao->userCache('getTokenByNum',$user['number'])?'online':'offline';   // 是否在线
         return $user;
     }
 
@@ -61,8 +61,8 @@ class GroupUserMemberService
         $from_number = $data['from_number'];
         $number      = $data['number'];
         $check       = $data['check'];
-        $from_user = ($rpcDao->userGroupMemberService->friendInfo(['number'=>$from_number]))['data'];
-        $user = ($rpcDao->userGroupMemberService->friendInfo(['number'=>$number]))['data'];
+        $from_user = ($rpcDao->userGroupMemberService('friendInfo',['number'=>$from_number]))['data'];
+        $user = ($rpcDao->userGroupMemberService('friendInfo',['number'=>$number]))['data'];
 
 
         if($from_user['online'])
@@ -90,7 +90,7 @@ class GroupUserMemberService
     public function checkIsFriend($user1_id, $user2_id)
     {
         $rpcDao = App::getBean(RpcDao::class);
-        $ids = ($rpcDao->userGroupMemberService->getAllFriends($user1_id))['data'];
+        $ids = ($rpcDao->userGroupMemberService('getAllFriends',$user1_id))['data'];
         if(in_array($user2_id, $ids))
             return true;
         return false;

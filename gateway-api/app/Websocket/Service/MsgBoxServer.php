@@ -24,6 +24,6 @@ class MsgBoxServer
     {
         //判断如果没有msg_id 则是通过websocket推送添加的好友，则需要查询消息id
 
-        App::getBean(RpcDao::class)->msgService->updateById($data['msg_id'] , ['type' => $data['msg_type'] ,'status' => $data['status'] ,'read_time' => time()]);
+        App::getBean(RpcDao::class)->msgService('updateById',$data['msg_id'] , ['type' => $data['msg_type'] ,'status' => $data['status'] ,'read_time' => time()]);
     }
 }

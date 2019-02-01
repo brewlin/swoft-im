@@ -5,7 +5,7 @@
  * Date: 2019/1/17
  * Time: 下午5:22
  */
-namespace App\WebsocketController;
+namespace App\Websocket\Controller;
 use App\Exception\Http\SockException;
 use App\Websocket\Service\ChatService;
 use ServiceComponents\Enum\StatusEnum;
@@ -32,7 +32,8 @@ class OnOpen extends BaseWs
             throw new SockException(['msg' => 'token异常']);
 
         //判断是否有其他地方已登陆
-        $userFd = $this->rpcDao->userCache->getFdByNum($user['user']['number']);
+        $userFd = $this->rpcDao->userCache('getFdByNum',$user['user']['number']);
+        var_dump($userFd);
         if($userFd != (int)$user['fd'])
         {
             $this->push($userFd , ['type'=>'ws','method'=> 'belogin','data'=> 'logout']);
@@ -52,8 +53,10 @@ class OnOpen extends BaseWs
     public function push($fd,$data)
     {
         $server = \Swoft::$server;
-        if($server->getClientInfo($fd))
-            $server->push($fd,json_encode($data));
+
+        if($fd)
+            if($server->getClientInfo($fd))
+                $server->push($fd,json_encode($data));
     }
 
     /**
@@ -80,12 +83,12 @@ class OnOpen extends BaseWs
     private function saveCache($user)
     {
         // 更新用户在线状态缓存（ 添加 fd 字段 ）
-        $this->rpcDao->userCache->saveNumToFd($user['user']['number'], $user['fd']);
+        $this->rpcDao->userCache('saveNumToFd',$user['user']['number'], $user['fd']);
         // 添加 fd 与 token 关联缓存，close 时可以销毁 fd 相关缓存
-        $this->rpcDao->userCache->saveTokenByFd($user['fd'], $user['token']);
+        $this->rpcDao->userCache('saveTokenByFd',$user['fd'], $user['token']);
 
         // 查找用户所在所有组，初始化组缓存
-        $groupRes = $this->rpcDao->groupService->getGroup(['user_number' => $user['user']['number']]);
+        $groupRes = $this->rpcDao->groupService('getGroup',['user_number' => $user['user']['number']]);
         if($groupRes['code'] != StatusEnum::Success)
             throw new SockException(['msg' => '获取群数据失败']);
         $groups = $groupRes['data'];
@@ -93,7 +96,7 @@ class OnOpen extends BaseWs
         {
             foreach ($groups as $val)
             {
-                $this->rpcDao->userCache->setGroupFds($val->gnumber, $user['fd']);
+                $this->rpcDao->userCache('setGroupFds',$val->gnumber, $user['fd']);
             }
         }
     }
@@ -103,7 +106,7 @@ class OnOpen extends BaseWs
     private function sendOnlineMsg($user)
     {
         // 获取分组好友
-        $groupRes = $this->rpcDao->userGroupMemberService->getAllFriends($user['user']['id']);
+        $groupRes = $this->rpcDao->userGroupMemberService('getAllFriends',$user['user']['id']);
         if($groupRes['code'] != StatusEnum::Success)
             throw new SockException(['msg' => '获取好友数据失败']);
         $friends = $groupRes['data'];
@@ -121,7 +124,7 @@ class OnOpen extends BaseWs
             {
                 if($v['status'])
                 {
-                    $fd = $this->rpcDao->userCache->getFdByNum($v['number']);
+                    $fd = $this->rpcDao->userCache('getFdByNum',$v['number']);
                     $this->push($fd,$data);
                 }
             }
