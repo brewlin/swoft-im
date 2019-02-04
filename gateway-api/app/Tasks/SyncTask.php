@@ -10,6 +10,8 @@
 
 namespace App\Tasks;
 
+use App\Models\Dao\RpcDao;
+use Swoft\App;
 use Swoft\Task\Bean\Annotation\Task;
 
 /**
@@ -68,10 +70,14 @@ class SyncTask
         $method = $data['method'];
         $model->$method($data['data']);
     }
-    public function saveMysql($data){
-        $model = new $data['class'];
+    public function saveMysql($data)
+    {
+        $rpcDao = App::getBean(RpcDao::class);
+
+        $service = $data['service'];
         $method = $data['method'];
-        $model::$method($data['data']);
+
+        $rpcDao->$service($method,$data['data']);
     }
     public function sendToALl($data){
         $serv = \Swoft::$server;

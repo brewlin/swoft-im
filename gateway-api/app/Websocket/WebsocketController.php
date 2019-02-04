@@ -59,44 +59,43 @@ class WebsocketController implements HandlerInterface
      */
     public function onMessage(Server $server, Frame $frame)
     {
-        $data = $frame->data;
-        $data = json_decode($data,1);
-        if(!$data)
-            return $server->push($frame->fd,Message::sockData(['data' => '缺少数据']));
-        //获取控制器
-        $classname = 'App\\Websocket\\Controller\\'.$data['controller'];
-        $action = $data['action'];
-        if (class_exists($classname))
-            try
+        try
+        {
+            $data = $frame->data;
+            $data = json_decode($data,1);
+            if(!$data)
+                return $server->push($frame->fd,Message::sockData(['data' => '缺少数据']));
+            //获取控制器
+            $classname = 'App\\Websocket\\Controller\\'.$data['controller'];
+            $action = $data['action'];
+            if (class_exists($classname))
+                    (new $classname($data['content'],$frame->fd))->$action();
+        }catch(\Throwable $e)
+        {
+            $file      = $e->getFile();
+            $line      = $e->getLine();
+            $code      = $e->getCode();
+            $exception = $e->getMessage();
+            $data = [];
+            $statusCode = 10000;
+            if(property_exists($e,'data'))
+                $data = $e->data;
+            if(property_exists($e,'statusCode'))
+                $statusCode = $e->statusCode;
+            /**
+             * 抓捕Rpc调用服务 返回的异常信息 swoft封装抛出
+             * 调试使用
+             * */
+            if(method_exists($e,'getResponse'))
             {
-                (new $classname($data['content'],$frame->fd))->$action();
-            }catch(\Throwable $e)
-            {
-                $file      = $e->getFile();
-                $line      = $e->getLine();
-                $code      = $e->getCode();
-                $exception = $e->getMessage();
-                $data = [];
-                $statusCode = 10000;
-                if(property_exists($e,'data'))
-                    $data = $e->data;
-                if(property_exists($e,'statusCode'))
-                    $statusCode = $e->statusCode;
-                /**
-                 * 抓捕Rpc调用服务 返回的异常信息 swoft封装抛出
-                 * 调试使用
-                 * */
-                if(method_exists($e,'getResponse'))
-                {
-                    $reponse = $e->getResponse();
-                    $exception = $reponse['msg'];
-                    var_dump($reponse);
-                }
-
-                $data = ['code' => $code,'msg' => $exception,'data' => $data,'statusCode' => $statusCode, 'file' => $file, 'line' => $line];
-                App::error(json_encode($data));
-                $server->push($frame->fd,Message::sockData(['data' => $file.'--'.$line.'--'.$exception]));
+                $reponse = $e->getResponse();
+                $exception = $reponse['msg'];
+                var_dump($reponse);
             }
+            $data = ['code' => $code,'msg' => $exception,'data' => $data,'statusCode' => $statusCode, 'file' => $file, 'line' => $line];
+            App::error(json_encode($data));
+            $server->push($frame->fd,Message::sockData(['data' => $file.'--'.$line.'--'.$exception]));
+        }
     }
 
     /**

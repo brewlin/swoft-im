@@ -24,7 +24,7 @@ use Swoft\Bean\Annotation\PointBean;
         UserRecordModel::class,
         LoginService::class,
         UserGroupMemberService::class,
-        UserRecordService::class,
+        RecordService::class,
         UserService::class
  *     })
  * )

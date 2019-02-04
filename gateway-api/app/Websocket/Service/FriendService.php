@@ -48,11 +48,11 @@ class FriendService
     /*
      * 检查二人是否是好友关系
      */
-    public function checkIsFriend($user1_id, $user2_id)
+    public function checkIsFriend($user1Id, $user2Id)
     {
         $rpcDao = App::getBean(RpcDao::class);
-        $ids = ($rpcDao->userGroupMemberService('getAllFriends',$user1_id))['data'];
-        if(in_array($user2_id, $ids))
+        $ids = ($rpcDao->userGroupMemberService('getAllFriends',$user1Id))['data'];
+        if(in_array($user2Id, $ids))
             return true;
         return false;
     }

@@ -8,7 +8,7 @@
 
 namespace App\Controllers\Api;
 use ServiceComponents\Common\Message;
-use ServiceComponents\Rpc\User\UserRecordServiceInterface;
+use ServiceComponents\Rpc\User\RecordServiceInterface;
 use Swoft\Bean\Annotation\Strings;
 use Swoft\Bean\Annotation\ValidatorFrom;
 use Swoft\Http\Message\Server\Request;
@@ -26,7 +26,7 @@ class UserRecordController extends BaseController
 {
     /**
      * @Reference("useService")
-     * @var UserRecordServiceInterface
+     * @var RecordServiceInterface
      */
     private $userRecordService;
     /**

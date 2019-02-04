@@ -14,16 +14,16 @@ use App\Models\Dao\RpcDao;
 use App\Models\Dao\UserRecordModelDao;
 use App\Models\Entity\Group;
 use ServiceComponents\Common\Message;
-use ServiceComponents\Rpc\User\UserRecordServiceInterface;
+use ServiceComponents\Rpc\User\RecordServiceInterface;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Rpc\Server\Bean\Annotation\Service;
 
 /**
- * Class UserRecordService
+ * Class RecordService
  * @package App\Services
  * @Service()
  */
-class UserRecordService implements UserRecordServiceInterface
+class RecordService implements RecordServiceInterface
 {
 
     /**
@@ -87,6 +87,14 @@ class UserRecordService implements UserRecordServiceInterface
     public function getAllNoReadRecord($uid)
     {
         return Message::success($this->userRecordModelDao->getAllNoReadRecord($uid));
+    }
+    public function newChatRecord($data)
+    {
+        $this->userRecordModelDao->newRecord($data);
+    }
+    public function newGroupRecord($data)
+    {
+        $this->groupRecordModelDao->newRecord($data);
     }
 
 }

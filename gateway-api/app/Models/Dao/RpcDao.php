@@ -13,7 +13,7 @@ use ServiceComponents\Rpc\Msg\MsgServiceInterface;
 use ServiceComponents\Rpc\Redis\UserCacheInterface;
 use ServiceComponents\Rpc\User\UserGroupMemberServiceInterface;
 use ServiceComponents\Rpc\User\UserGroupServiceInterface;
-use ServiceComponents\Rpc\User\UserRecordServiceInterface;
+use ServiceComponents\Rpc\User\RecordServiceInterface;
 use ServiceComponents\Rpc\User\UserServiceInterface;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
@@ -58,9 +58,9 @@ class RpcDao
     private $userGroupService;
     /**
      * @Reference("userService")
-     * @var UserRecordServiceInterface
+     * @var RecordServiceInterface
      */
-    private $userRecordService;
+    private $recordService;
     /**
      * Rpc 里无法使用Rpc客户端，所以采用折中的办法，单独一个bean储存Rpc连接池
      * @param $function
@@ -70,9 +70,9 @@ class RpcDao
     {
         return $this->userCache->$function(...$param);
     }
-    public function userRecordService($function,...$param)
+    public function recordService($function,...$param)
     {
-        return $this->userRecordService->$function(...$param);
+        return $this->recordService->$function(...$param);
     }
     public function userGroupService($function,...$param)
     {

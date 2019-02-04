@@ -17,7 +17,7 @@ return [
     ],
     'tcp'     => [
         'host'               => env('TCP_HOST', '0.0.0.0'),
-        'port'               => env('TCP_PORT', 8091),
+        'port'               => env('TCP_PORT', 8094),
         'mode'               => env('TCP_MODE', SWOOLE_PROCESS),
         'type'               => env('TCP_TYPE', SWOOLE_SOCK_TCP),
         'package_max_length' => env('TCP_PACKAGE_MAX_LENGTH', 2048),

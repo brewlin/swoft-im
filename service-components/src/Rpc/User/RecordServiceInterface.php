@@ -9,10 +9,10 @@
 namespace ServiceComponents\Rpc\User;
 
 /**
- * Class UserRecordServiceInterface
+ * Class RecordServiceInterface
  * @package ServiceComponents\Rpc\User
  */
-interface UserRecordServiceInterface
+interface RecordServiceInterface
 {
     /**
      * 获取好友 或者群聊天记录
@@ -39,5 +39,20 @@ interface UserRecordServiceInterface
      * @return mixed
      */
     public function getAllNoReadRecord($uid);
+
+    /**
+     * 存储聊天记录
+     * @param $data
+     * @return mixed
+     */
+    public function newChatRecord($data);
+
+    /**
+     * 储存群组记录
+     * @param $data
+     * @return mixed
+     */
+    public function newGroupRecord($data);
+
 
 }

@@ -8,6 +8,7 @@
 namespace App\Websocket\Service;
 use App\Exception\Http\SockException;
 use App\Models\Dao\RpcDao;
+use App\Services\RecordService;
 use App\WebSocket\Common\TaskHelper;
 use ServiceComponents\Enum\StatusEnum;
 use Swoft\App;
@@ -73,12 +74,12 @@ class ChatService
     public function savePersonalMsg($data)
     {
         $taskData = [
-                'class'    => 'App\Model\ChatRecord',
-                'method'   => 'newRecord',
+                'service'    => 'recordService',
+                'method'   => 'newChatRecord',
                 'data'     => [
-                    'uid'       => $data['from']['user']['id'],
-                    'to_id'     => $data['to']['user']['id'],
-                    'data'      => $data['data'],
+                    'user_id'       => $data['from']['user']['id'],
+                    'friend_id'     => $data['to']['user']['id'],
+                    'content'      => $data['data'],
                     'is_read' => $data['is_read']
                 ]
         ];
@@ -143,12 +144,12 @@ class ChatService
     public function saveGroupMsg($data)
     {
         $taskData = [
-                'class'    => 'App\Model\GroupChatRecord',
-                'method'   => 'newRecord',
+                'class'    => 'recordService',
+                'method'   => 'newGroupRecord',
                 'data'     => [
-                    'uid'       => $data['user']['user']['id'],
-                    'gnumber'   => $data['gnumber'],
-                    'data'      => $data['data']
+                    'user_id'       => $data['user']['user']['id'],
+                    'group_number'   => $data['gnumber'],
+                    'content'      => $data['data']
                 ]
         ];
         Task::deliver('SyncTask','saveMysql',$taskData,Task::TYPE_ASYNC);
