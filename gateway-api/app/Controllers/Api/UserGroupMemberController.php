@@ -102,7 +102,7 @@ class UserGroupMemberController extends BaseController
     }
     /**
      * 获取推荐好友
-     * @RequestMapping(route="friend/recoomend",method={RequestMethod::GET})
+     * @RequestMapping(route="friend/recommend",method={RequestMethod::GET})
      */
     public function getRecommendFriend()
     {

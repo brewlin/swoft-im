@@ -21,16 +21,12 @@ use Swoft\Db\DbDataResult;
  */
 class UserGroupModelDao
 {
-    public function list()
-    {
-        return $this->hasMany('GroupUserMember','groupid','id');
-    }
     public function getAllFriends($id)
     {
         $list = UserGroup::findAll(['user_id' => $id])->getResult()->toArray();
         foreach ($list as $k => $v)//
         {
-           $list[$k]['list'] = UserGroupMember::findAll(['user_group_id' => $v['id']])->getResult()->toArray();
+           $list[$k]['list'] = UserGroupMember::findAll(['user_group_id' => $v['id']])->getResult();
         }
         return $list;
     }

@@ -63,7 +63,7 @@ class OnOpen extends BaseWs
      */
     public function checkOfflineRecord($self)
     {
-        $record = $this->rpcDao->userRecordService('getAllNoReadRecord',$self['user']['id']);
+        $record = $this->rpcDao->recordService('getAllNoReadRecord',$self['user']['id']);
         if($record['code'] != StatusEnum::Success)
             throw new SockException(['msg' => '湖区聊天消息失败']);
 
