@@ -13,8 +13,14 @@ namespace App\Websocket\Service;
 use App\Models\Dao\RpcDao;
 use App\WebSocket\Common\TaskHelper;
 use Swoft\App;
+use Swoft\Bean\Annotation\Bean;
 use Swoft\Task\Task;
 
+/**
+ * Class FriendService
+ * @package App\Websocket\Service
+ * @Bean()
+ */
 class FriendService
 {
     // 处理接收或拒绝添加好友的通知操作

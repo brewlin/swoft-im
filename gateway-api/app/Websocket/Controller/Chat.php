@@ -10,8 +10,8 @@ namespace App\Websocket\Controller;
 
 use App\Exception\Http\RpcException;
 use App\Exception\Http\SockException;
-use App\Models\Service\FriendService;
 use App\Websocket\Service\ChatService;
+use App\Websocket\Service\FriendService;
 use ServiceComponents\Common\Common;
 use ServiceComponents\Enum\StatusEnum;
 use Swoft\App;

@@ -8,7 +8,9 @@
 
 namespace App\Controllers\Api;
 use App\Enum\StatusEnum;
+use App\Models\Dao\RpcDao;
 use ServiceComponents\Rpc\Redis\UserCacheInterface;
+use Swoft\App;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
@@ -34,9 +36,10 @@ class BaseController
         $headerToken = request()->getHeaderLine('token');
         $requestToken = request()->input('token');
         $token = $headerToken ? $headerToken : $requestToken;
-        $user = $this->userCache->getUserByToken($token);
+        $rpcDao = App::getBean(RpcDao::class);
+        $user = $rpcDao->userCache('getUserByToken',$token);
         $this->user = $user;
-        $this->user['fd'] = $this->userCache->getFdByNum($user['number']);
+        $this->user['fd'] = $rpcDao->userCache('getFdByNum',$user['number']);
     }
 }
 

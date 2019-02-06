@@ -13,8 +13,14 @@ namespace App\Websocket\Service;
 use App\Models\Dao\RpcDao;
 use App\WebSocket\Common\TaskHelper;
 use Swoft\App;
+use Swoft\Bean\Annotation\Bean;
 use Swoft\Task\Task;
 
+/**
+ * Class GroupService
+ * @package App\Websocket\Service
+ * @Bean()
+ */
 class GroupService
 {
     public function sendNewGroupInfo($g_info, $user){

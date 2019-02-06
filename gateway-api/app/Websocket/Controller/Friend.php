@@ -63,7 +63,7 @@ class Friend extends BaseWs
         //调用消息存储服务
         $msgRes = $this->rpcDao->msgService('addMsgBox',$msgBox);
         if($msgRes['code'] != StatusEnum::Success)
-            throw new SockException(['消息存储失败']);
+            throw new SockException(['mg' => '消息存储失败']);
         $msgId = $msgRes['data'];
 
         $data['data']['from']['msg_id'] = $msgId;
@@ -93,9 +93,7 @@ class Friend extends BaseWs
 
         // 缓存校验，删除缓存，成功表示有该缓存记录，失败则没有
         $cache = $this->rpcDao->userCache('delFriendReq',$fromUser['number']);
-        if(!$cache)
-            throw new SockException(['msg' => '好友请求失败']);
-
+        var_dump($user);
         // 若同意，
         //添加好友记录，
         //加入对方好友队列
@@ -105,7 +103,7 @@ class Friend extends BaseWs
         if($check)
         {
             App::getBean(MsgBoxServer::class)->updateStatus($content,$user['user']['id']);
-            $this->rpcDao->userGroupMemberService('newFriends',$content,$userRes['user']['id']);
+            $this->rpcDao->userGroupMemberService('newFriends',$content,$user['user']['id']);
         }else
         {
             //更新为拒绝

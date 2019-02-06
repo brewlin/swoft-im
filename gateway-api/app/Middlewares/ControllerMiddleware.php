@@ -36,6 +36,7 @@ class ControllerMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        echo "\n\n[debug]---".$request->getUri()->getPath()."\n\n";
         if ($request->getMethod() === 'OPTIONS')
             return \response()->withStatus(202);
 

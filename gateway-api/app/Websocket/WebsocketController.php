@@ -68,6 +68,7 @@ class WebsocketController implements HandlerInterface
             //获取控制器
             $classname = 'App\\Websocket\\Controller\\'.$data['controller'];
             $action = $data['action'];
+            echo "\n\n[debug]---".$classname."--$action\n\n";
             if (class_exists($classname))
                     (new $classname($data['content'],$frame->fd))->$action();
         }catch(\Throwable $e)

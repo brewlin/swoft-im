@@ -66,7 +66,7 @@ class OnOpen extends BaseWs
         $record = $this->rpcDao->recordService('getAllNoReadRecord',$self['user']['id']);
         if($record['code'] != StatusEnum::Success)
             throw new SockException(['msg' => '湖区聊天消息失败']);
-
+        $record = $record['data'];
         $sendData = [];
         $data['to'] = $self;
         foreach ($record as $k => $v)
@@ -76,7 +76,8 @@ class OnOpen extends BaseWs
             $data['data'] = $v['data'];
             $sendData[] = $data;
         }
-        App::getBean(ChatService::class)->sendOfflineMsg($this->fd,$sendData);
+        if($sendData)
+            App::getBean(ChatService::class)->sendOfflineMsg($this->fd,$sendData);
     }
     private function saveCache($user)
     {

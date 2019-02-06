@@ -10,7 +10,13 @@ namespace App\Websocket\Service;
 
 use App\Models\Dao\RpcDao;
 use Swoft\App;
+use Swoft\Bean\Annotation\Bean;
 
+/**
+ * Class UserService
+ * @package App\Websocket\Service
+ * @Bean()
+ */
 class UserService
 {
     const Friend = 'friend';

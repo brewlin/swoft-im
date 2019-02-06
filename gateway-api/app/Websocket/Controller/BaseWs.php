@@ -72,14 +72,15 @@ class BaseWs
      */
     protected function onlineValidate($toId)
     {
-        $ishas = $this->rpcDao->userService('getUserByCondition',['id' => $toId]);
+        $ishas = $this->rpcDao->userService('getUserByCondition',['id' => $toId],true);
         if($ishas['code'] != StatusEnum::Success)
             throw new RpcException();
         if(!$ishas)
             throw new SockException();
+        $ishas = $ishas['data'];
         $fd = $this->rpcDao->userCache('getFdByNum',$ishas['number']);
         if(!$fd)
-            throw new SockException(['msg' =>'用户不在线，已发送离线消息']);
+            $this->sendMsg(['msg' => '用户不在线，已发送离线消息']);
         $user = [
             'fd'    => $fd,
             'user'  => $ishas

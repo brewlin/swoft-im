@@ -12,7 +12,13 @@ namespace App\Websocket\Service;
 
 use App\Models\Dao\RpcDao;
 use Swoft\App;
+use Swoft\Bean\Annotation\Bean;
 
+/**
+ * Class MsgBoxServer
+ * @package App\Websocket\Service
+ * @Bean()
+ */
 class MsgBoxServer
 {
     /**

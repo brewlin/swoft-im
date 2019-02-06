@@ -12,8 +12,14 @@ namespace App\Websocket\Service;
 use App\Models\Dao\RpcDao;
 use App\WebSocket\Common\TaskHelper;
 use Swoft\App;
+use Swoft\Bean\Annotation\Bean;
 use Swoft\Task\Task;
 
+/**
+ * Class GroupUserMemberService
+ * @package App\Websocket\Service
+ * @Bean()
+ */
 class GroupUserMemberService
 {
     public function getFriends($arr)

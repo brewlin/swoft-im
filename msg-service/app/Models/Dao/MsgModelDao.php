@@ -8,6 +8,7 @@
 
 namespace App\Models\Dao;
 use App\Models\Entity\Msg;
+use App\Models\Entity\User;
 use Swoft\Bean\Annotation\Bean;
 
 /**
@@ -22,11 +23,17 @@ class MsgModelDao
      */
     public function getDataByUserId($userId)
     {
-        return Msg::query()->orWhere('from',$userId)
+        $msg = Msg::query()->orWhere('from',$userId)
             ->orWhere('to',$userId)
             ->orderBy('send_time','desc')
             ->get()
-            ->getResult();
+            ->getResult()->toArray();
+        foreach ($msg as $k => $v)
+        {
+            $msg[$k]['to'] = User::findOne(['id' => $v['to']])->getResult();
+            $msg[$k]['from'] = User::findOne(['id' => $v['from']])->getResult();
+        }
+        return $msg;
     }
     /**
      * 添加信息

@@ -26,7 +26,7 @@ class UserGroupMemberDao
 
     public function newFriend($uId, $friendId , $groupId )
     {
-        return (new UserGroupMember())->fill(['user_id' => $uId,'friend_id' => $friendId,'groupid' => $groupId])
+        return (new UserGroupMember())->fill(['user_id' => $uId,'friend_id' => $friendId,'user_group_id' => $groupId])
                                        ->save()
                                        ->getResult();
     }
