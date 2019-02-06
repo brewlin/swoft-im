@@ -10,6 +10,7 @@ namespace App\Models\Service;
 use App\Models\Dao\MsgModelDao;
 use App\Models\Dao\UserGroupMemberDao;
 use App\Models\Dao\UserModelDao;
+use App\Models\Entity\Msg;
 use App\Models\Entity\User;
 use ServiceComponents\Rpc\Msg\MsgServiceInterface;
 use ServiceComponents\Rpc\Redis\UserCacheInterface;
@@ -86,8 +87,8 @@ class MemberService
         $this->userGroupMemberDao->newFriend($currentUid ,$data['friend_id'] ,$data['group_user_id']);
         //请求方添加好友
         //获取消息里的数据
-        $friend = $this->msgService->getDataById($data['msg_id']);
-        $this->userGroupMemberDao->newFriend($friend['from'] , $friend['to'] ,$friend['group_user_id']);
+        $friend = Msg::findById($data['msg_id'])->getResult();
+        $this->userGroupMemberDao->newFriend($friend['from'] , $friend['to'] ,$friend['userGroupId']);
     }
     public function friendInfo($where)
     {

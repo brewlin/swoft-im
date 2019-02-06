@@ -9,6 +9,7 @@ namespace App\Websocket\Service;
 use App\Exception\Http\SockException;
 use App\Models\Dao\RpcDao;
 use App\Services\RecordService;
+use App\Tasks\SyncTask;
 use App\WebSocket\Common\TaskHelper;
 use ServiceComponents\Enum\StatusEnum;
 use Swoft\App;
@@ -41,7 +42,7 @@ class ChatService
         ];
         //异步任务
         $data = TaskHelper::getTaskData('chat',$toData,$data['to']['fd']);
-        Task::deliver('SyncTask','sendMsg',$data,Task::TYPE_ASYNC);
+        Task::deliver("SyncTask",'sendMsg',[$data],Task::TYPE_ASYNC);
     }
     /**
      * 发送离线消息
@@ -66,7 +67,7 @@ class ChatService
             $fromData[] = $toData;
         }
         $data = TaskHelper::getTaskData('sendOfflineMsg',$fromData,$fd);
-        Task::deliver('SyncTask','sendOfflineMsg',$data,Task::TYPE_ASYNC);
+        Task::deliver('SyncTask','sendOfflineMsg',[$data],Task::TYPE_ASYNC);
     }
     /*
      * 存储消息记录
@@ -83,7 +84,7 @@ class ChatService
                     'is_read' => $data['is_read']
                 ]
         ];
-        Task::deliver('SyncTask','saveMysql',$taskData,Task::TYPE_ASYNC);
+        Task::deliver('SyncTask','saveMysql',[$taskData],Task::TYPE_ASYNC);
     }
     /*
      * 发送群组聊天记录
@@ -137,7 +138,7 @@ class ChatService
                 'res' => $res,
                 'fds' => $friendFds
             ];
-        Task::deliver('SyncTask','sendGroupMsg',$taskData,Task::TYPE_ASYNC);
+        Task::deliver('SyncTask','sendGroupMsg',[$taskData],Task::TYPE_ASYNC);
     }
 
     // 存储群组消息
@@ -152,7 +153,7 @@ class ChatService
                     'content'      => $data['data']
                 ]
         ];
-        Task::deliver('SyncTask','saveMysql',$taskData,Task::TYPE_ASYNC);
+        Task::deliver('SyncTask','saveMysql',[$taskData],Task::TYPE_ASYNC);
     }
 
 }

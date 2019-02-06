@@ -58,7 +58,7 @@ class Friend extends BaseWs
             'to' => $toId,
             'send_time' => time(),
             'remark' => $content['remark'],
-            'group_user_id' => $content['group_user_id'],
+            'user_group_id' => $content['group_user_id'],
         ];
         //调用消息存储服务
         $msgRes = $this->rpcDao->msgService('addMsgBox',$msgBox);
@@ -73,7 +73,7 @@ class Friend extends BaseWs
                 'fd'        => $fd,
                 'data'      => $data
         ];
-        Task::deliver('SyncTask','sendMsg',$taskData,Task::TYPE_ASYNC);
+        Task::deliver('SyncTask','sendMsg',[$taskData],Task::TYPE_ASYNC);
     }
 
     /*
@@ -93,7 +93,6 @@ class Friend extends BaseWs
 
         // 缓存校验，删除缓存，成功表示有该缓存记录，失败则没有
         $cache = $this->rpcDao->userCache('delFriendReq',$fromUser['number']);
-        var_dump($user);
         // 若同意，
         //添加好友记录，
         //加入对方好友队列

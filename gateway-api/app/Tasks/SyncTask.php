@@ -16,7 +16,6 @@ use Swoft\Task\Bean\Annotation\Task;
 
 /**
  * Sync task
- *
  * @Task("SyncTask")
  */
 class SyncTask
@@ -79,7 +78,8 @@ class SyncTask
 
         $rpcDao->$service($method,$data['data']);
     }
-    public function sendToALl($data){
+    public function sendToALl($data)
+    {
         $serv = \Swoft::$server;
         $start_fd = 0;
         $myfd = $data['fd'];

@@ -33,7 +33,7 @@ class GroupService
 
         ];
         $taskData = TaskHelper::getTaskData('newGroup',$data,$user['fd']);
-        Task::deliver('SyncTask','sendMsg',$taskData,Task::TYPE_ASYNC);
+        Task::deliver('SyncTask','sendMsg',[$taskData],Task::TYPE_ASYNC);
     }
 
     /**
@@ -49,11 +49,11 @@ class GroupService
             if($check)
             {
                 $taskData = TaskHelper::getTaskData('newGroup',$data,App::getBean(RpcDao::class)->userCache->getFdByNum($fromNumber));
-                Task::deliver('SyncTask','sendMsg',$taskData,Task::TYPE_ASYNC);
+                Task::deliver('SyncTask','sendMsg',[$taskData],Task::TYPE_ASYNC);
             }else
             {
                 $taskData = TaskHelper::getTaskData('newGroupFailMsg','newGroupFailMsg', '加群审核未通过',App::getBean(RpcDao::class)->userCache('getFdByNum',$fromNumber));
-                Task::deliver('SyncTask','sendMsg',$taskData,Task::TYPE_ASYNC);
+                Task::deliver('SyncTask','sendMsg',[$taskData],Task::TYPE_ASYNC);
             }
         }
     }

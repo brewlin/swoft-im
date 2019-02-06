@@ -44,7 +44,7 @@ class MsgModelDao
     }
     public function getDataById($id)
     {
-        return Msg::findById($id);
+        return Msg::findById($id)->getResult();
     }
     public function updateById($id , $where)
     {

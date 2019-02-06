@@ -21,7 +21,6 @@ class TaskFinish implements EventHandlerInterface
 {
     public function handle(EventInterface $event)
     {
-        // TODO: Implement handle() method.
         //var_dump("3",$event->getParams());
     }
 

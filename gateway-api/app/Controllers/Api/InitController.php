@@ -10,6 +10,7 @@ namespace App\Controllers\Api;
 use App\Exception\Http\RpcException;
 use App\Middlewares\ControllerMiddleware;
 use App\Middlewares\TokenCheckMiddleware;
+use App\Tasks\SyncTask;
 use ServiceComponents\Common\Message;
 use ServiceComponents\Enum\StatusEnum;
 use ServiceComponents\Rpc\Group\GroupMemberModelInterface;
@@ -24,6 +25,7 @@ use Swoft\Http\Message\Server\Request;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
 use Swoft\Rpc\Client\Bean\Annotation\Reference;
+use Swoft\Task\Task;
 
 /**
  * Class InitController

@@ -75,18 +75,18 @@ class GroupUserMemberService
             if($check)
             {
                 $taskData = TaskHelper::getTaskData('newFriend',$user,$rpcDao->userCache->getFdByNum($from_number));
-                Task::deliver('SyncTask','sendMsg',$taskData,Task::TYPE_ASYNC);
+                Task::deliver('SyncTask','sendMsg',[$taskData],Task::TYPE_ASYNC);
             }else
             {
                 $taskData = TaskHelper::getTaskData('newFriendFail',$number.'('.$user["nickname"].')'.' 拒绝好友申请',$rpcDao->userCache->getFdByNum($from_number));
-                Task::deliver('SyncTask','sendMsg',$taskData,Task::TYPE_ASYNC);
+                Task::deliver('SyncTask','sendMsg',[$taskData],Task::TYPE_ASYNC);
             }
 
         if($check)
             if($user['online'])
             {
                 $taskData = TaskHelper::getTaskData('newFriend',$from_user,$rpcDao->userCache->getFdByNum($number));
-                Task::deliver('SyncTask','sendMsg',$taskData,Task::TYPE_ASYNC);
+                Task::deliver('SyncTask','sendMsg',[$taskData],Task::TYPE_ASYNC);
             }
     }
 

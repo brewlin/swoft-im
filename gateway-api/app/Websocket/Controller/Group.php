@@ -138,7 +138,7 @@ class Group extends BaseWs
                 'fd'        => $fd,
                 'data'      => $data
         ];
-        Task::deliver('SyncTask','sendMsg',$taskData,Task::TYPE_ASYNC);
+        Task::deliver('SyncTask','sendMsg',[$taskData],Task::TYPE_ASYNC);
         $this->sendMsg(['data'=>'加群请求已发送！']);
 
     }

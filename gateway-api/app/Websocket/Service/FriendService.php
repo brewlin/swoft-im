@@ -30,23 +30,18 @@ class FriendService
         $from_number = $data['from_number'];
         $number      = $data['number'];
         $check       = $data['check'];
-        $from_user = ($rpcDao->userService('getUserByCondition',['number'=>$from_number],true))['data'];
         $user = ($rpcDao->userService('getUserByCondition',['number' => $number],true))['data'];
         //获取好友请求方的分组
         $msg = ($rpcDao->msgService('getDataById',$data['msg_id']))['data'];
-        $user['groupid'] = $msg['group_user_id'];//好友所在分组
-
-        if($from_user['online'])
+        $user['groupid'] = $msg['userGroupId'];//好友所在分组
+        if($check)
         {
-            if($check)
-            {
-                $taskData = TaskHelper::getTaskData('newFriend',$user,$rpcDao->userCache->getFdByNum($from_number));
-                Task::deliver('SyncTask','sendMsg',$taskData);
-            }else
-            {
-                $taskData = TaskHelper::getTaskData('newFriendFail',[],$rpcDao->userCache->getFdByNum($from_number));
-                Task::deliver('SyncTask',$number.'('.$user["nickname"].')'.' 拒绝好友申请','sendMsg',$taskData);
-            }
+            $taskData = TaskHelper::getTaskData('newFriend',$user,$rpcDao->userCache('getFdByNum',$from_number));
+            Task::deliver('SyncTask','sendMsg',[$taskData],Task::TYPE_ASYNC);
+        }else
+        {
+            $taskData = TaskHelper::getTaskData('newFriendFail',[],$rpcDao->userCache('getFdByNum',$from_number));
+            Task::deliver('SyncTask',$number.'('.$user["nickname"].')'.' 拒绝好友申请','sendMsg',[$taskData],Task::TYPE_ASYNC);
         }
 
     }
@@ -58,7 +53,8 @@ class FriendService
     {
         $rpcDao = App::getBean(RpcDao::class);
         $ids = ($rpcDao->userGroupMemberService('getAllFriends',$user1Id))['data'];
-        if(in_array($user2Id, $ids))
+        $friendIds = array_column($ids,'friendId');
+        if(in_array($user2Id, $friendIds))
             return true;
         return false;
     }

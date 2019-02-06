@@ -35,7 +35,6 @@ class Chat extends BaseWs
         $userRes = $this->rpcDao->userService('getUserByCondition',['id' => $content['id']]);
         if($userRes['code'] != StatusEnum::Success)
             throw new RpcException();
-        $to_number = $userRes['number'];
         $data = Common::security($content['data']);
         /**
          * 验证好友在线情况
