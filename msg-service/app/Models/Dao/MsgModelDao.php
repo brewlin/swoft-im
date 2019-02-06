@@ -27,7 +27,9 @@ class MsgModelDao
             ->orWhere('to',$userId)
             ->orderBy('send_time','desc')
             ->get()
-            ->getResult()->toArray();
+            ->getResult();
+        if($msg)
+            $msg = $msg->toArray();
         foreach ($msg as $k => $v)
         {
             $msg[$k]['to'] = User::findOne(['id' => $v['to']])->getResult();

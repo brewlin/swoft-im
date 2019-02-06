@@ -36,7 +36,7 @@ class MsgController extends BaseController
         //返回form和to都为自己的信息
         $this->getCurrentUser();
         $res = ($this->msgService->getDataByUserId($this->user['id']))['data'];
-        return Message::success($res);
+        return Message::success($res,$this->user);
     }
 
 }

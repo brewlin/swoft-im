@@ -156,7 +156,7 @@ class UserController extends BaseController
 
         //调用用户服务 更新签名
         $userRes = $this->userService->updateUserByCondition(['sign' => $sign],['id' => $this->user['id']]);
-        if($userRes != StatusEnum::Success)
+        if($userRes['code'] != StatusEnum::Success)
             throw new RpcException();
 
         //更新Redis缓存
