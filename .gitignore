@@ -2,6 +2,7 @@
 *.lock
 *public/
 *resources/
+*db.php
 *dev.composer.json
 .idea/
 *changelog.md
