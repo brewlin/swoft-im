@@ -7,12 +7,15 @@
  */
 
 namespace App\Boot;
+use App\Process\KeepUser;
 use Psr\Http\Message\RequestInterface;
+use Swoft\App;
 use Swoft\Bean\Annotation\ServerListener;
 use Swoft\Bootstrap\Listeners\Interfaces\StartInterface;
 use Swoft\Bootstrap\Listeners\Interfaces\WorkerStartInterface;
 use Swoft\Bootstrap\SwooleEvent;
 use Swoole\Server;
+use Swoole\Timer;
 
 /**
  * Class HttpServerListener
@@ -23,6 +26,13 @@ class HttpServerListener implements WorkerStartInterface
 {
     public function onWorkerStart(Server $server, int $workerId, bool $isWorkerr)
     {
-        //echo $workerId."is started \n";
+        if($workerId == 1)
+        {
+            $keepuser = App::getBean(KeepUser::class);
+            Timer::tick(20000, function () use ($keepuser) {
+                $keepuser->run();
+            });
+
+        }
     }
 }

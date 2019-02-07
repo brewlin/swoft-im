@@ -64,16 +64,16 @@ class UserService
     {
         $rpcDao = App::getBean(RpcDao::class);
 
-        $fd = $rpcDao->userCacheService('getFdByNum',$info['user']['number']);
-        $rpcDao->userCacheService('delTokenUser',$info['token']);
-        $rpcDao->userCacheService('delNumberUserOtherInfo',$info['user']['number']);
-        $rpcDao->userCacheService('delFdToken',$fd);
-        $rpcDao->userCacheService('delFds',$fd);
-        $groupRes = $rpcDao->groupService('getGroup',['user_number'=>$info['user']['number']]);
+        $fd = $rpcDao->userCache('getFdByNum',$info['user']['number']);
+        $rpcDao->userCache('delTokenUser',$info['token']);
+        $rpcDao->userCache('delNumberUserOtherInfo',$info['user']['number']);
+        $rpcDao->userCache('delFdToken',$fd);
+        $rpcDao->userCache('delFds',$fd);
+        $groupRes = $rpcDao->groupService('getGroup',['user_id'=>$info['user']['id']]);
         $groups = $groupRes['data'];
         if($groups)
             foreach ($groups as $val)
-                $rpcDao->userCacheService('delGroupFd',$val->gnumber, $fd);
+                $rpcDao->userCache('delGroupFd',$val->gnumber, $fd);
     }
 
     /*

@@ -80,7 +80,7 @@ class BaseWs
         $ishas = $ishas['data'];
         $fd = $this->rpcDao->userCache('getFdByNum',$ishas['number']);
         if(!$fd)
-            $this->sendMsg(['msg' => '用户不在线，已发送离线消息']);
+            $this->sendMsg(['data' => '用户不在线，已发送离线消息']);
         $user = [
             'fd'    => $fd,
             'user'  => $ishas

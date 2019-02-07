@@ -12,9 +12,10 @@ Cosul服务注册与发现、Mysql连接池、Redis连接池、异步任务、we
     - Httpserver网关api服务，websocket服务
 + 请使用swoole扩展2.1.3 以及php 7.1
 + 快速开始
-    - 针对每个服务使用composer更新依赖`composer update`
-    - 开启所有服务 `make startAll`
-+ 演示地址 http://im.huido.site 可以注册
+    - 针对每个服务使用composer更新依赖`make update`
+    - 开启所有服务 `make start`
+    - 关闭所有服务 `make stop`
++ 演示地址 http://chat.huido.site(可以注册) 
 
 架构图
 =========
@@ -32,6 +33,19 @@ Cosul服务注册与发现、Mysql连接池、Redis连接池、异步任务、we
 
 服务开发
 =========
+Rpc 接口依赖
+--------
+    
+    "repositories": {
+        "0":{
+            "type":"vcs",//git源
+            "url":"http://www.github.com/Lxido/service-components" //公用composer包
+        },
+        "packagist": {
+            "type": "composer",
+            "url": "https://packagist.laravel-china.org"
+        }
+    }
 Gateway-Api && Websocket 中心网关服务
 -------
     接受web端webocket长连接通讯、api请求.
@@ -104,14 +118,15 @@ User 用户中心服务
     `php bin/swoft rpc:start` --d可选守护进程模式
   配置: `worker`:2，`task_worker`:2,`port`:8094,`useProvider`:false,mysql`连接池`
   
+ 启动和服务进程预览
+ ------ 
+![](./resource/start.png)
+![](./resource/process.png)
 开发进度 && 实现功能
 ==========
 - 好友单聊
 - 添加好友
-- 发送图片 文件视频等。。并解析
-- 群聊
 -  websocket token 机制
-- 分组添加 分组名（修改，删除 移动好友）
 - 好友右键菜单操作功能
     - 发送好友信息
     - 查看好友资料

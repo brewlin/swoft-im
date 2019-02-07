@@ -64,8 +64,8 @@
     },
     "repositories": {
         "0":{
-            "type":"path",
-            "url":"../service-components"
+            "type":"vcs",
+            "url":"http://www.github.com/Lxido/service-components"
         },
         "packagist": {
             "type": "composer",
