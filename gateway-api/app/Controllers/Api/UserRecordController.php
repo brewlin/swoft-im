@@ -25,22 +25,21 @@ use Swoft\Rpc\Client\Bean\Annotation\Reference;
 class UserRecordController extends BaseController
 {
     /**
-     * @Reference("useService")
+     * @Reference("userService")
      * @var RecordServiceInterface
      */
     private $userRecordService;
     /**
      * @return mixed
      * @RequestMapping(route="record",method={RequestMethod::GET})
-     * @Strings(from=ValidatorFrom::POST,name="id")
-     * @Strings(from=ValidatorFrom::POST,name="type")
-     * @Strings(from=ValidatorFrom::POST,name="token")
-     * @param Request $request
+     * @Strings(from=ValidatorFrom::GET,name="id")
+     * @Strings(from=ValidatorFrom::GET,name="type")
+     * @Strings(from=ValidatorFrom::GET,name="token")
      */
-    public function getChatRecordByToken($request)
+    public function getChatRecordByToken()
     {
         $this->getCurrentUser();
-        $res = $this->userRecordService->getAllChatRecordById($this->user['id'] , $request->query());
+        $res = $this->userRecordService->getAllChatRecordById($this->user['id'] , \request()->query());
         return Message::success($res);
     }
 

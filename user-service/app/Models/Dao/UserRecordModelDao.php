@@ -53,19 +53,16 @@ class UserRecordModelDao
      */
     public function getAllChatRecordById($current , $toId)
     {
-        $recordList = UserRecord::query()
-            ->andWhere('uid',$current)
-            ->where('to_id',$toId)
-            ->closeWhere()
-            ->orWhere('uid',$toId)
-            ->where('to_id',$current)
-            ->closeWhere()
-            ->andWhere('group_number',$id)
-            ->get(["uid as id","created_time as timestamp","data as content"])
-            ->getResult();
+        $recordList1 = UserRecord::query()->where('user_id' ,$current)->where('friend_id',$toId)->get()->getResult()->toArray();
+        $recordList2 = UserRecord::query()->where('user_id' ,$toId)->where('friend_id',$current)->get()->getResult()->toArray();
+        $recordList = array_merge($recordList1,$recordList2);
         foreach ($recordList as $k => $v)
         {
-            $user = User::findOne(['number' => $v['userNumber']])->getResult();
+            unset($recordList1[$k]['id']);
+            $recordList1[$k]['id'] = $v['userId'];
+            $recordList1[$k]['timestamp'] = $v['createTime'];
+            $recordList1[$k]['content'] = $v['data'];
+            $user = User::findOne(['id' => $v['userId']])->getResult();
             $recordList[$k]['username'] = $user['username'];
             $recordList[$k]['avatar'] = $user['avatar'];
         }
