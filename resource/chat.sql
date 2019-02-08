@@ -1,9 +1,6 @@
 /*
 Navicat MySQL Data Transfer
 
-Source Server         : 115.159.19.89_3306
-Source Server Version : 50723
-Source Host           : 115.159.199.89:3306
 Source Database       : chat
 
 Target Server Type    : MYSQL
