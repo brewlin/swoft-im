@@ -160,7 +160,8 @@ class UserController extends BaseController
             throw new RpcException();
 
         //更新Redis缓存
-        $user = $this->userService->getUserByCondition(['id' => $this->user['id']]);
+        $userRes = $this->userService->getUserByCondition(['id' => $this->user['id']],true);
+        $user = $userRes['data'];
         $this->userCacheService->saveTokenToUser(request()->input('token') , $user);
         return Message::success([],'成功');
     }
