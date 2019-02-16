@@ -12,7 +12,7 @@ Cosul服务注册与发现、Mysql连接池、Redis连接池、异步任务、we
     - Httpserver网关api服务，websocket服务
 + 请使用swoole扩展2.1.3 以及php 7.1
 + 快速开始
-    - 针对每个服务使用composer更新依赖`make update`
+    - 针对每个服务使用composer更新依赖`make install`
     - 开启所有服务 `make start`
     - 关闭所有服务 `make stop`
 + 演示地址 http://chat.huido.site  (可以注册) 
