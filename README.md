@@ -2,7 +2,7 @@
 ==============
 概述
 =======
-+ 对swoole-im进行服务拆分，进行微服务架构(https:://wwww.github.com/Lxido/swoole-im.git)
++ 对swoole-im进行服务拆分，进行微服务架构(https://wwww.github.com/Lxido/swoole-im.git)
 + 基于Swoft-cloud 进行服务化治理服务治理、熔断器、服务降级、Rpc调用、服务网关、
 Cosul服务注册与发现、Mysql连接池、Redis连接池、异步任务、websocket推送
 + 底层采用Swoole通讯引擎,多进程、异步任务，开发模式：Aop，依赖注入，Bean容器，全注解
