@@ -26,6 +26,8 @@ $aliases = [
     '@console'    => '@beans/console.php',
     '@commands'   => '@app/command',
     '@vendor'     => '@root/vendor',
+    '@upload'     => '/website/chat-view/public',
+    '@url'        => 'http://chat.huido.site',
 ];
 
 \Swoft\App::setAliases($aliases);
