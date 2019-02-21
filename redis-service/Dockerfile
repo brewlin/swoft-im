@@ -76,5 +76,5 @@ ADD . /website/gateway-api
 
 EXPOSE 8090
 
-ENTRYPOINT ["php", "/website/gateway-api/bin/swoft","ws:start"]
+ENTRYPOINT ["php", "/website/redis-service/bin/swoft","rpc:start"]
 

@@ -72,9 +72,9 @@ RUN wget https://github.com/swoole/swoole-src/archive/v${SWOOLE_VERSION}.tar.gz 
 
 RUN apt-get install -y redis-server & redis-server &
 
-ADD . /website/gateway-api
+ADD . /website/group-service
 
 EXPOSE 8090
 
-ENTRYPOINT ["php", "/website/gateway-api/bin/swoft","ws:start"]
+ENTRYPOINT ["php", "/website/group-service/bin/swoft","rpc:start"]
 
