@@ -10,7 +10,6 @@
 *.yml
 *phar.build.inc
 *LICENSE
-*Dockerfile
 *phpunit.xml
 *_CN.md
 *.phpintel/
