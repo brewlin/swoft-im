@@ -70,7 +70,6 @@ RUN wget https://github.com/swoole/swoole-src/archive/v${SWOOLE_VERSION}.tar.gz 
     && rm -r swoole \
     && docker-php-ext-enable swoole
 
-RUN apt-get install -y redis-server & redis-server &
 
 ADD . /website/msg-service
 
