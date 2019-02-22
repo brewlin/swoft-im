@@ -7,7 +7,6 @@
 .idea/
 *changelog.md
 *CONTRIBUTING.md
-*.yml
 *phar.build.inc
 *LICENSE
 *phpunit.xml

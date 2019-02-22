@@ -1,0 +1,63 @@
+version: "3"
+
+services:
+
+  gateway-api:
+    image: lxido/gateway-api
+    ports:
+      - 8090:8090
+    depends_on:
+      - mysql
+    networks:
+      - my-bridge
+
+  group-service:
+    image: lxido/group-service
+    ports:
+      - 8094:8094
+    depends_on:
+      - mysql
+    networks:
+      - my-bridge
+
+  msg-service:
+    image: lxido/msg-service
+    ports:
+      - 8093:8093
+    depends_on:
+      - mysql
+    networks:
+      - my-bridge
+
+  redis-service:
+    image: lxido/redis-service
+    ports:
+      - 8091:8091
+    depends_on:
+      - mysql
+    networks:
+      - my-bridge
+
+  user-service:
+    image: lxido/user-service
+    ports:
+      - 8092:8092
+    depends_on:
+      - mysql
+    networks:
+      - my-bridge
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: root
+    volumes:
+      - $(pwd)/mysql-init:/docker-entrypoint-initdb.d mysql
+      - mysql-data:/var/lib/mysql
+    networks:
+      - my-bridge
+
+networks:
+  my-bridge:
+    driver: bridge

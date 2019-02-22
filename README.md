@@ -15,6 +15,8 @@ Cosul服务注册与发现、Mysql连接池、Redis连接池、异步任务、we
     - 针对每个服务使用composer更新依赖`make install`
     - 开启所有服务 `make start`
     - 关闭所有服务 `make stop`
++ docker启动
+    - `docker-compose up`
 + 演示地址 http://chat.huido.site  (可以注册) 
 
 架构图

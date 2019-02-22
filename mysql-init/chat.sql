@@ -9,6 +9,10 @@ File Encoding         : 65001
 
 Date: 2019-02-07 09:28:52
 */
+-- 创建数据库
+ DROP database IF EXISTS `chat`;
+ create database `chat` default character set utf8 collate utf8_general_ci;
+ use chat;
 
 SET FOREIGN_KEY_CHECKS=0;
 
