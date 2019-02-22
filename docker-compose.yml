@@ -53,8 +53,7 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: root
     volumes:
-      - $(pwd)/mysql-init:/docker-entrypoint-initdb.d mysql
-      - mysql-data:/var/lib/mysql
+      - $PWD/mysql-init:/docker-entrypoint-initdb.d
     networks:
       - my-bridge
 
