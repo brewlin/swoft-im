@@ -1,4 +1,4 @@
-基于Swoft-cloud微服务架构-Im通讯平台
+基于Swoft-cloud微服务架构-Im通讯平台 swoft v 2.0版本
 ==============
 概述
 =======
