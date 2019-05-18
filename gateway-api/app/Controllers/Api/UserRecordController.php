@@ -7,6 +7,7 @@
  */
 
 namespace App\Controllers\Api;
+use App\Middlewares\ControllerMiddleware;
 use ServiceComponents\Common\Message;
 use ServiceComponents\Rpc\User\RecordServiceInterface;
 use Swoft\Bean\Annotation\Strings;
@@ -16,11 +17,13 @@ use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
 use Swoft\Http\Server\Bean\Annotation\RequestMethod;
 use Swoft\Rpc\Client\Bean\Annotation\Reference;
+use Swoft\Http\Message\Bean\Annotation\Middleware;
 
 /**
  * Class UserRecordControoler
  * @package App\Controllers\Api
  * @Controller(prefix="/api/im")
+ * @Middleware(ControllerMiddleware::class)
  */
 class UserRecordController extends BaseController
 {
@@ -54,9 +57,9 @@ class UserRecordController extends BaseController
     public function updateIsReadChatRecord($request)
     {
         $this->getCurrentUser();
-        $where = ['to_id' => $this->user['id'],'uid' => $request->post('uid'),'is_read' => 0];
+        $where = ['friend_id' => $this->user['id'],'user_id' => request()->post('uid'),'is_read' => 0];
         $data = ['is_read' => 1];
-        $type = $request->post('type');
+        $type = request()->post('type');
         $this->userRecordService->updateChatRecordIsRead($where,$data,$type);
         return Message::success([],'收取消息成功');
     }

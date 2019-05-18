@@ -65,7 +65,8 @@ class SwoftExceptionHandler
 
         $data = ['code' => $code,'msg' => $exception,'data' => $data,'statusCode' => $statusCode, 'file' => $file, 'line' => $line];
         App::error(json_encode($data));
-        return $response->json($data);
+        $response->json($data);
+        return $this->handleOrigin($response);
     }
 
     /**
@@ -80,7 +81,8 @@ class SwoftExceptionHandler
         $status = $throwable->getStatus();
         $data = $throwable->getData();
         $returnData = ['code' => StatusEnum::Fail,'msg' => $msg,'data' => $data,'statusCode' => $status];
-        return $response->json($returnData);
+        $response->json($returnData);
+        return $this->handleOrigin($response);
     }
     /**
      * 捕获Rpc Response解析失败(未设置服务降级)
@@ -92,7 +94,8 @@ class SwoftExceptionHandler
     {
         $data  = $throwable->getResponse();
         $returnData = ['code' => StatusEnum::Fail,'msg' => '','data' => $data,'statusCode' => 10000];
-        return $response->json($returnData);
+        $response->json($returnData);
+        return $this->handleOrigin($response);
     }
 
     /**
@@ -105,7 +108,8 @@ class SwoftExceptionHandler
     {
         $msg  = $throwable->getMessage();
         $returnData = ['code' => StatusEnum::Fail,'msg' => $msg,'data' => '服务未开机','statusCode' => 10000];
-        return $response->json($returnData);
+        $response->json($returnData);
+        return $this->handleOrigin($response);
     }
     /**
      * @Handler(RuntimeException::class)
@@ -121,7 +125,8 @@ class SwoftExceptionHandler
         $code      = $throwable->getCode();
         $exception = $throwable->getMessage();
 
-        return $response->json([$exception, 'runtimeException']);
+        $response->json([$exception, 'runtimeException']);
+        return $this->handleOrigin($response);
     }
 
     /**
@@ -136,7 +141,8 @@ class SwoftExceptionHandler
     {
         $exception = $throwable->getMessage();
 
-        return $response->json(['code' => 4,'data' => [],'msg' => $exception]);
+        $response->json(['code' => 4,'data' => [],'msg' => $exception]);
+        return $this->handleOrigin($response);
     }
 
 
@@ -153,7 +159,9 @@ class SwoftExceptionHandler
     {
         $exception = $throwable->getMessage();
 
-        return $response->json(['message' => $exception]);
+        $response->json(['message' => $exception]);
+        return $this->handleOrigin($response);
+
     }
 
     /**
@@ -197,6 +205,12 @@ class SwoftExceptionHandler
         $data  = compact('name', 'notes', 'links');
 
         return view('exception/index', $data);
+    }
+    public  function handleOrigin(Response $response){
+        return $response->withHeader('Access-Control-Allow-Origin', '*')
+            ->withHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+            ->withHeader('Access-Control-Allow-Credentials', 'true')
+            ->withHeader('Access-Control-Allow-Headers', 'token');
     }
 
 }

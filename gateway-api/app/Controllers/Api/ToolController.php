@@ -62,6 +62,7 @@ class ToolController
         $clientName = $file->getClientFilename();
         $src = $this->getFullPath($file,$type , $clientName);
         $file->moveTo('@upload'.$src);
+        chmod(App::getAlias('@upload').$src,0777);
         return Message::success(compact('src'),'',0);
     }
 

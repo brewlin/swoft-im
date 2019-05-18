@@ -27,7 +27,7 @@ class UserRecordModelDao
     }
     public function updateByWhere($where ,$data)
     {
-        return UserRecord::updateAll($data,$where);
+        return UserRecord::updateAll($data,$where)->getResult();
     }
 
     public function newRecord($data)

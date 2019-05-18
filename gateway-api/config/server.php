@@ -54,7 +54,8 @@ return [
         'daemonize'             => env('DAEMONIZE', 0),
         'dispatch_mode'         => env('DISPATCH_MODE', 2),
         'log_file'              => env('LOG_FILE', '@runtime/logs/swoole.log'),
-        'package_max_length'    => env('PACKAGE_MAX_LENGTH', 2048),
+        //包长度限制  在上传图片的时候需要配置
+        'package_max_length'    => env('PACKAGE_MAX_LENGTH', 204800),
         'upload_tmp_dir'        => env('UPLOAD_TMP_DIR', '@runtime/uploadfiles'),
         'document_root'         => env('DOCUMENT_ROOT', BASE_PATH . '/public'),
         'enable_static_handler' => env('ENABLE_STATIC_HANDLER', true),

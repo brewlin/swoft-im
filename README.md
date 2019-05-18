@@ -41,7 +41,7 @@ Rpc 接口依赖
     "repositories": {
         "0":{
             "type":"vcs",//git源
-            "url":"http://www.github.com/Lxido/service-components" //公用composer包
+            "url":"http://www.github.com/brewlin/service-components" //公用composer包
         },
         "packagist": {
             "type": "composer",

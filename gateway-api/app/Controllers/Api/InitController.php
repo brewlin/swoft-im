@@ -31,7 +31,6 @@ use Swoft\Task\Task;
  * Class InitController
  * @package App\Controllers\Api
  * @Controller("api/im")
- * @Middleware(TokenCheckMiddleware::class)
  */
 class InitController
 {
