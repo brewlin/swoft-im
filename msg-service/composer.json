@@ -63,12 +63,8 @@
     },
     "repositories": {
         "0":{
-            "type":"vcs",
-            "url":"http://www.github.com/brewlin/service-components"
-        },
-        "packagist": {
-            "type": "composer",
-            "url": "https://packagist.laravel-china.org"
+            "type":"path",
+            "url":"../service-components"
         }
     }
 }
