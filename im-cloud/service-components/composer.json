@@ -1,0 +1,20 @@
+{
+    "name": "lxido/components",
+    "description": "service components",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "xiaodo",
+            "email": "97404667@qq.com"
+        }
+    ],
+    "autoload":{
+        "psr-4":{
+            "ServiceComponents\\":"src"
+        }
+
+    },
+    "minimum-stability": "dev",
+    "require": {}
+}

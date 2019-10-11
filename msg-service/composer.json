@@ -25,6 +25,7 @@
         "swoft/cache": "^1.0",
         "swoft/redis": "^1.0",
         "swoft/console": "^1.0",
+        "swoft/devtool": "^1.0",
         "swoft/session": "^1.0",
         "swoft/i18n": "^1.0",
         "swoft/process": "^1.0",
@@ -63,12 +64,8 @@
     },
     "repositories": {
         "0":{
-            "type":"vcs",
-            "url":"http://www.github.com/brewlin/service-components"
-        },
-        "packagist": {
-            "type": "composer",
-            "url": "https://packagist.laravel-china.org"
+            "type":"path",
+            "url":"../service-components"
         }
     }
 }
