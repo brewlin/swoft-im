@@ -1,8 +1,8 @@
 基于Swoft-cloud微服务架构-Im通讯平台
 ==============
-概述
-=======
-+ 对swoole-im进行服务拆分，进行微服务架构(https://wwww.github.com/Lxido/swoole-im.git)
+
+## @概述
++ 对swoole-im进行服务拆分，进行微服务架构(https://www.github.com/brewlin/swoole-im.git)
 + 基于Swoft-cloud 进行服务化治理服务治理、熔断器、服务降级、Rpc调用、服务网关、
 Cosul服务注册与发现、Mysql连接池、Redis连接池、异步任务、websocket推送
 + 底层采用Swoole通讯引擎,多进程、异步任务，开发模式：Aop，依赖注入，Bean容器，全注解
@@ -17,26 +17,34 @@ Cosul服务注册与发现、Mysql连接池、Redis连接池、异步任务、we
     - 关闭所有服务 `make stop`
 + docker启动
     - `docker-compose up`
-+ 演示地址 http://chat.huido.site  (可以注册) 
++ 演示地址 
+    - http://chat.huido.site  (可以注册) 
+    - http://cloud.huido.site (soon..)
 
-架构图
-=========
-服务依赖
------
+## @gateway-api-cloud (`soon`)
+- 新增im-cloud版本，接入[`im-cloud`](https://github.com/brewlin/im-cloud)分布式推送中间件作为推送中心。
+- 新网关中心可替代原有的网关服务，接入im-cloud分布式推送服务
+- `im-cloud` 基于swoole原生开发的分布式中间件
+- done soon..
+
+
+## @架构图
+
+### 服务依赖
+
 ![](./resource/services.png)
 
-前端服务
------
+### 前端服务
+
 ![](./resource/api.png)
 
-服务处理
-------
+### 服务处理
 ![](./resource/swoole.png)
 
 服务开发
 =========
-Rpc 接口依赖
---------
+### Rpc 接口依赖
+
     
     "repositories": {
         "0":{
@@ -48,8 +56,7 @@ Rpc 接口依赖
             "url": "https://packagist.laravel-china.org"
         }
     }
-Gateway-Api && Websocket 中心网关服务
--------
+### Gateway-Api && Websocket 中心网关服务
     接受web端webocket长连接通讯、api请求.
     处理基础数据，对外中心api网关.
     服务调用方(Rpc 调用),调用群组服务、用户基础服务等`
@@ -63,8 +70,7 @@ Gateway-Api && Websocket 中心网关服务
     
     `php bin/swoft ws:start` --d可选守护进程模式
     
-Redis 缓存处理服务
--------
+### Redis 缓存处理服务
     处理用用户的业务缓存，使用swoft redis连接池
     独立服务处理用户群组缓存、好友聊天缓存
 - 依赖:`services-compoents`、`swoft-cloud*`
@@ -77,8 +83,7 @@ Redis 缓存处理服务
     `php bin/swoft rpc:start` --d可选守护进程模式
   配置: `worker`:2，`task_worker`:2,`port`:8091,SyncRedis`连接池`，`useProvider`:false,
 
-Group 群组数据处理服务
--------
+### Group 群组数据处理服务
     处理用群组基础信息，群组聊天等业务处理
 - 依赖:`services-compoents`、`swoft-cloud*`、`redis-service`
 - 服务启动：
@@ -90,8 +95,7 @@ Group 群组数据处理服务
     `php bin/swoft rpc:start` --d可选守护进程模式
   配置: `worker`:2，`task_worker`:2,`port`:8092,SyncRedis`连接池`，`useProvider`:false,mysql`连接池`
 
-Msg 消息处理服务
--------
+### Msg 消息处理服务
     处理系统消息，收发请求消息存储
    
 - 依赖:`services-compoents`、`swoft-cloud*`
@@ -104,8 +108,7 @@ Msg 消息处理服务
     `php bin/swoft rpc:start` --d可选守护进程模式
   配置: `worker`:2，`task_worker`:2,`port`:8093,`useProvider`:false,mysql`连接池`
 
-User 用户中心服务
--------
+### User 用户中心服务
     用户基础信息处理
     用户好友聊天处理
     用户业务功能封装
@@ -120,8 +123,7 @@ User 用户中心服务
     `php bin/swoft rpc:start` --d可选守护进程模式
   配置: `worker`:2，`task_worker`:2,`port`:8094,`useProvider`:false,mysql`连接池`
   
- 启动和服务进程预览
- ------ 
+ ### 启动和服务进程预览
 ![](./resource/start.png)
 ![](./resource/process.png)
 开发进度 && 实现功能
@@ -144,8 +146,7 @@ User 用户中心服务
     - 好友离线上线通知,好友上线离线消息推送
     - 系统消息推送,好友申请处理操作
     
-7.预览
-======
+### 预览
 - 消息处理中心，消息盒子
 ![](https://github.com/Lxido/swoole-im/blob/master/img/QQ%E6%88%AA%E5%9B%BE20190106210353.png?raw=true)
 - 发现中心，推荐好友群，搜索好友群，创建群
