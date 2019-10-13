@@ -1,6 +1,5 @@
 *vendor/
 *.lock
-*public/
 *resources/
 *db.php
 *dev.composer.json
