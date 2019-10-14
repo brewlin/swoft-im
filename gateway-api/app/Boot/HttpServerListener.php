@@ -26,13 +26,13 @@ class HttpServerListener implements WorkerStartInterface
 {
     public function onWorkerStart(Server $server, int $workerId, bool $isWorkerr)
     {
-        if($workerId == 1)
-        {
-            $keepuser = App::getBean(KeepUser::class);
-            Timer::tick(20000, function () use ($keepuser) {
-                $keepuser->run();
-            });
-
-        }
+//        if($workerId == 1)
+//        {
+//            $keepuser = App::getBean(KeepUser::class);
+//            Timer::tick(20000, function () use ($keepuser) {
+//                $keepuser->run();
+//            });
+//
+//        }
     }
 }
