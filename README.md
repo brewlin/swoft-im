@@ -10,7 +10,7 @@ Cosul服务注册与发现、Mysql连接池、Redis连接池、异步任务、we
 装为独立composer包。
     - 拆分有群组Rpc服务，聊天日志Rpc服务，用户基础Rpc服务，消息处理服务
     - Httpserver网关api服务，websocket服务
-+ 请使用swoole扩展2.1.3 以及php 7.1
++ 请使用swoole扩展2.1.3+ 以及`php 7.1`!
 + 快速开始
     - 针对每个服务使用composer更新依赖`make install`
     - 开启所有服务 `make start`
