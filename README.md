@@ -18,8 +18,8 @@ Cosul服务注册与发现、Mysql连接池、Redis连接池、异步任务、we
 + docker启动
     - `docker-compose up`
 + 演示地址 
-    - http://chat.huido.site  (可以注册) 
-    - http://cloud.huido.site (soon..)
+    - http://chat.brewlin.com  (可以注册) 
+    - http://cloud.brewlin.com (soon..)
 
 ## @gateway-api-cloud (`soon`)
 - 新增im-cloud版本，接入[`im-cloud`](https://github.com/brewlin/im-cloud)分布式推送中间件作为推送中心。
