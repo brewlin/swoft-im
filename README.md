@@ -18,7 +18,8 @@ Cosul服务注册与发现、Mysql连接池、Redis连接池、异步任务、we
 + docker启动
     - `docker-compose up`
 + 演示地址 
-    - http://chat.brewlin.com  (可以注册) 
+    - http://im.brewlin.com  (可以注册) 
+    - http://chat.brewlin.com  (closed)
     - http://cloud.brewlin.com (soon..)
 
 ## @gateway-api-cloud (`soon`)
